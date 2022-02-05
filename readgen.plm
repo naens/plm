@@ -1,0 +1,44 @@
+readgen:
+    do;
+
+$include (d:iocld.src)
+
+    declare pointer literally 'address';
+
+    declare space literally '20h';
+    declare tab literally '9h';
+    declare lf literally '0ah';
+    declare cr literally '0dh';
+
+    declare tail$start literally '80h';
+
+    declare p$tail pointer;
+    declare b based p$tail byte;
+    declare tail$len byte;
+
+    skip$spaces: procedure (p$str) pointer;
+        declare p$str pointer;
+        declare str based p$str byte;
+        do while str = space or str = tab or str = lf or str = cr;
+            p$str = p$str + 1;
+        end;
+        return p$str;
+    end skip$spaces;
+
+    print$string: procedure (p$str);
+        declare p$str pointer;
+        declare chr based p$str byte;
+        do while chr <> 0;
+            call wr$con(chr);
+            p$str = p$str + 1;
+        end;
+    end print$string;
+
+    p$tail = tail$start;
+    tail$len = b;
+    p$tail = p$tail + tail$len + 1;
+    b = 0;
+    call print$string(skip$spaces(tail$start + 1));
+
+end;
+
