@@ -50,6 +50,17 @@ $include (d:iocld.src)
         call new$line;
     end print$line;
 
+    string$equal: procedure (p$str1, p$str2) boolean;
+        declare (p$str1, p$str2) pointer;
+        declare str1 based p$str1 byte;
+        declare str2 based p$str2 byte;
+        do while str1 <> 0 and str2 <> 0 and str1 = str2;
+            p$str1 = p$str1 + 1;
+            p$str2 = p$str2 + 1;
+        end;
+        return str1 = 0 and str2 = 0;
+    end string$equal;
+
 
     /* READER */
     /* check whether the character is an identifier or a keyword character */
@@ -96,6 +107,14 @@ $include (d:iocld.src)
         q = read$word(p, 0);
         call print$line(p);
     end;
+    call print$string(.('string entered: {', 0));
+    call print$string(p);
+    call print$line(.('}', 0));
+    call print$string(.('equal [ABC]? ', 0));
+    if string$equal(p, .('ABC', 0)) then
+        call print$line(.('YES!', 0));
+    else
+        call print$line(.('NO!!', 0));
 
 end;
-
+
