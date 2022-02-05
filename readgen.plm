@@ -4,6 +4,10 @@ readgen:
 $include (d:iocld.src)
 
     declare pointer literally 'address';
+    declare word literally 'address';
+    declare boolean literally 'byte';
+    declare true literally '1';
+    declare false literally '0';
 
     declare space literally '20h';
     declare tab literally '9h';
@@ -11,10 +15,6 @@ $include (d:iocld.src)
     declare cr literally '0dh';
 
     declare tail$start literally '80h';
-
-    declare p$tail pointer;
-    declare b based p$tail byte;
-    declare tail$len byte;
 
     skip$spaces: procedure (p$str) pointer;
         declare p$str pointer;
@@ -34,11 +34,68 @@ $include (d:iocld.src)
         end;
     end print$string;
 
+    print$char: procedure (chr);
+        declare chr byte;
+        call wr$con(chr);
+    end print$char;
+
+    new$line: procedure;
+        call print$char(cr);
+        call print$char(lf);
+    end new$line;
+
+    print$line: procedure (p$str);
+        declare p$str pointer;
+        call print$string(p$str);
+        call new$line;
+    end print$line;
+
+
+    /* READER */
+    /* check whether the character is an identifier or a keyword character */
+    id$char: procedure (chr) boolean;
+        declare chr byte;
+        if chr >= 'a' and chr <= 'z' then
+            return true;
+        if chr >= 'A' and chr <= 'Z' then
+            return true;
+        if chr >= '0' and chr <= '9' then
+            return true;
+        if chr = '$' or chr = '_' then
+            return true;
+        return false;
+    end id$char;
+
+    /* read a string that may be an identifier or a keyword */
+    read$word: procedure (p$str, i) pointer;
+        declare p$str pointer;
+        declare str based p$str byte;
+        declare i word;
+        do while id$char(str);
+            p$str = p$str + 1;
+        end;
+        str = 0;
+        return p$str + 1;
+    end read$word;
+
+    /* MAIN PROGRAM */
+    declare p$tail pointer;
+    declare b based p$tail byte;
+    declare tail$len byte;
+    declare p pointer;
+    declare c based p byte;
+    declare q pointer;
+
     p$tail = tail$start;
     tail$len = b;
     p$tail = p$tail + tail$len + 1;
     b = 0;
-    call print$string(skip$spaces(tail$start + 1));
+    p = skip$spaces(tail$start + 1);
+    if id$char(c) then
+    do;
+        q = read$word(p, 0);
+        call print$line(p);
+    end;
 
 end;
-
+
