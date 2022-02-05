@@ -1,0 +1,16 @@
+setvar:
+do;
+
+    declare a byte;
+    declare b byte;
+    declare c byte;
+    declare result byte;
+
+    a = 7;
+    b = 8;
+    c = 9;
+    result = a + b - c;
+
+
+end;
+

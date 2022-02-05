@@ -1,0 +1,24 @@
+prime:
+do;
+    declare boolean literally 'byte';
+    declare word literally 'address';
+    declare true literally '1';
+    declare false literally '0';
+    prime0: procedure (n) boolean;
+        declare n word;
+        ld: procedure (a) word;
+            declare a word;
+            declare k word;
+            k = 2;
+            do while a mod k < k;
+                k = k + 1;
+            end;
+            return k;
+        end ld;
+        if n <= 1 then
+            return false;
+        else
+            return ld(n) = n;
+    end prime0;
+end prime;
+
