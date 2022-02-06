@@ -62,9 +62,30 @@ $include (d:iocld.src)
     end string$equal;
 
 
-    /* READER */
+    /* TOKENIZER */
+    /* reader variables */
+    declare read$ptr pointer;   /* pointer to the current string */
+    declare read$chr byte;
+    declare read$index byte;     /* index into the current string */
+
+    /* tokenizer variables */
+    declare token$ready boolean;
+    declare token$id byte;
+    declare token$value word;
+    declare token$str pointer;
+
+    /* token ids */
+    declare end$of$input literally '0';
+    declare keyword literally '1';
+    declare identifier literally '2';
+    declare number literally '3';
+
+    read$end: procedure boolean;
+        return read$chr = 0;
+    end read$end;
+
     /* check whether the character is an identifier or a keyword character */
-    id$char: procedure (chr) boolean;
+    word$char: procedure (chr) boolean;
         declare chr byte;
         if chr >= 'a' and chr <= 'z' then
             return true;
@@ -75,19 +96,40 @@ $include (d:iocld.src)
         if chr = '$' or chr = '_' then
             return true;
         return false;
-    end id$char;
+    end word$char;
+
+    next$char: procedure byte;
+        return 0FFh;
+    end next$char;
 
     /* read a string that may be an identifier or a keyword */
-    read$word: procedure (p$str, i) pointer;
-        declare p$str pointer;
-        declare str based p$str byte;
-        declare i word;
-        do while id$char(str);
-            p$str = p$str + 1;
+    readword: procedure;
+        token$id = identifier;
+        token$str = read$ptr;
+        do while word$char(read$chr);
+            read$ptr = read$ptr + 1;
         end;
-        str = 0;
-        return p$str + 1;
+        read$chr = 0;
     end read$word;
+
+
+    read$char: procedure;
+    end read$char;
+
+    read$token: procedure;
+        if read$end then
+            token$id = end$of$input;
+        else if word$char(next$char) then
+            call read$word;
+        else
+            call read$char;
+    end read$token;
+
+    get$token: procedure byte;
+        if not token$ready then
+            call read$token;
+        return token$id;
+    end get$token;
 
     /* MAIN PROGRAM */
     declare p$tail pointer;
@@ -102,11 +144,6 @@ $include (d:iocld.src)
     p$tail = p$tail + tail$len + 1;
     b = 0;
     p = skip$spaces(tail$start + 1);
-    if id$char(c) then
-    do;
-        q = read$word(p, 0);
-        call print$line(p);
-    end;
     call print$string(.('string entered: {', 0));
     call print$string(p);
     call print$line(.('}', 0));
@@ -117,4 +154,4 @@ $include (d:iocld.src)
         call print$line(.('NO!!', 0));
 
 end;
-
+
