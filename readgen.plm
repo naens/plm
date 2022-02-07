@@ -16,15 +16,6 @@ $include (d:iocld.src)
 
     declare tail$start literally '80h';
 
-    skip$spaces: procedure (p$str) pointer;
-        declare p$str pointer;
-        declare str based p$str byte;
-        do while str = space or str = tab or str = lf or str = cr;
-            p$str = p$str + 1;
-        end;
-        return p$str;
-    end skip$spaces;
-
     print$string: procedure (p$str);
         declare p$str pointer;
         declare chr based p$str byte;
@@ -62,27 +53,34 @@ $include (d:iocld.src)
     end string$equal;
 
 
-    /* TOKENIZER */
+    /* READER */
     /* reader variables */
-    declare read$ptr pointer;   /* pointer to the current string */
-    declare read$chr byte;
-    declare read$index byte;     /* index into the current string */
+    declare reader$ptr pointer;   /* pointer to the current string */
+    declare reader$chr byte;
 
+    input$end: procedure boolean;
+        return reader$chr = 0;
+    end input$end;
+
+    next$char: procedure;
+        reader$ptr = reader$ptr + 1;
+    end next$char;
+
+
+    /* TOKENIZER */
     /* tokenizer variables */
     declare token$ready boolean;
     declare token$id byte;
     declare token$value word;
     declare token$str pointer;
+    declare tbuf$len literally '80h';
+    declare tok$buf (tbuf$len) byte;
 
     /* token ids */
     declare end$of$input literally '0';
     declare keyword literally '1';
     declare identifier literally '2';
     declare number literally '3';
-
-    read$end: procedure boolean;
-        return read$chr = 0;
-    end read$end;
 
     /* check whether the character is an identifier or a keyword character */
     word$char: procedure (chr) boolean;
@@ -98,28 +96,47 @@ $include (d:iocld.src)
         return false;
     end word$char;
 
-    next$char: procedure byte;
-        return 0FFh;
-    end next$char;
+    /* checks whether chr is equivalent to a space */
+    space$char: procedure (chr) boolean;
+        declare chr byte;
+        return chr = space or chr = tab or chr = lf or chr = cr;
+    end space$char;
+
+    /* skips characters equivalent to a space */
+    /* TODO: also skip comments */
+    skip$spaces: procedure pointer;
+        do while space$char(reader$chr);
+            call next$char;
+        end;
+    end skip$spaces;
 
     /* read a string that may be an identifier or a keyword */
-    readword: procedure;
+    read$word: procedure;
+        declare buffer$ptr pointer;
+        declare buffer$chr based buffer$ptr byte;
+        buffer$ptr = .tok$buf;
         token$id = identifier;
-        token$str = read$ptr;
-        do while word$char(read$chr);
-            read$ptr = read$ptr + 1;
+        token$str = reader$ptr;
+        /* TODO: check buffer length before writing! */
+        /* buffer length is in constant tbuf$len */
+        do while not input$end and word$char(reader$chr);
+            buffer$chr = reader$chr;
+            buffer$ptr = buffer$ptr + 1;
+            call next$char;
         end;
-        read$chr = 0;
     end read$word;
 
-
     read$char: procedure;
+        if not input$end then
+            call next$char;
+        /* TODO: set token$id */
     end read$char;
 
     read$token: procedure;
-        if read$end then
+        call skip$spaces;    /* skip spaces before reading the next token */
+        if input$end then
             token$id = end$of$input;
-        else if word$char(next$char) then
+        else if word$char(reader$chr) then
             call read$word;
         else
             call read$char;
@@ -131,27 +148,19 @@ $include (d:iocld.src)
         return token$id;
     end get$token;
 
-    /* MAIN PROGRAM */
-    declare p$tail pointer;
-    declare b based p$tail byte;
-    declare tail$len byte;
-    declare p pointer;
-    declare c based p byte;
-    declare q pointer;
 
-    p$tail = tail$start;
-    tail$len = b;
-    p$tail = p$tail + tail$len + 1;
-    b = 0;
-    p = skip$spaces(tail$start + 1);
+    /* MAIN PROGRAM */
+    declare tail$ptr pointer;
+    declare tail$chr based tail$ptr byte;
+    declare tail$len byte;
+
+    tail$ptr = tail$start;
+    tail$len = tail$chr;
+    tail$ptr = tail$ptr + tail$len + 1;
+    tail$chr = 0;
     call print$string(.('string entered: {', 0));
-    call print$string(p);
+    call print$string(tail$start + 1);
     call print$line(.('}', 0));
-    call print$string(.('equal [ABC]? ', 0));
-    if string$equal(p, .('ABC', 0)) then
-        call print$line(.('YES!', 0));
-    else
-        call print$line(.('NO!!', 0));
 
 end;
-
+
