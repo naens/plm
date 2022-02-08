@@ -56,7 +56,7 @@ $include (d:iocld.src)
     /* READER */
     /* reader variables */
     declare reader$ptr pointer;   /* pointer to the current string */
-    declare reader$chr byte;
+    declare reader$chr based reader$ptr byte;
 
     input$end: procedure boolean;
         return reader$chr = 0;
@@ -69,7 +69,7 @@ $include (d:iocld.src)
 
     /* TOKENIZER */
     /* tokenizer variables */
-    declare token$ready boolean;
+    declare token$ready boolean initial (false);
     declare token$id byte;
     declare token$value word;
     declare token$str pointer;
@@ -96,6 +96,12 @@ $include (d:iocld.src)
         return false;
     end word$char;
 
+    /* check whether the character is a decimal digit */
+    dec$char: procedure (chr) boolean;
+        declare chr byte;
+        return chr >= '0' and chr <= '9';
+    end dec$char;
+
     /* checks whether chr is equivalent to a space */
     space$char: procedure (chr) boolean;
         declare chr byte;
@@ -116,7 +122,7 @@ $include (d:iocld.src)
         declare buffer$chr based buffer$ptr byte;
         buffer$ptr = .tok$buf;
         token$id = identifier;
-        token$str = reader$ptr;
+        token$str = buffer$ptr;
         /* TODO: check buffer length before writing! */
         /* buffer length is in constant tbuf$len */
         do while not input$end and word$char(reader$chr);
@@ -124,18 +130,33 @@ $include (d:iocld.src)
             buffer$ptr = buffer$ptr + 1;
             call next$char;
         end;
+        buffer$chr = 0;
+        token$ready = true;
     end read$word;
 
     read$char: procedure;
         if not input$end then
             call next$char;
-        /* TODO: set token$id */
+        token$id = 0ffh;
+        /* TODO: determine token$id based on the character */
+        token$ready = true;
     end read$char;
+
+    read$number: procedure;
+        /* TODO: implement */
+        token$id = number;
+        token$value = 0ffffh;
+        call next$char;
+        token$ready = true;
+    end read$number;
+
 
     read$token: procedure;
         call skip$spaces;    /* skip spaces before reading the next token */
         if input$end then
             token$id = end$of$input;
+        else if dec$char(reader$chr) then
+            call read$number;
         else if word$char(reader$chr) then
             call read$word;
         else
@@ -143,16 +164,32 @@ $include (d:iocld.src)
     end read$token;
 
     get$token: procedure byte;
+        call print$line(.('get$token', 0));
         if not token$ready then
             call read$token;
         return token$id;
     end get$token;
 
 
+    /* print token without new line */
+    print$token: procedure;
+        call print$string(.('TOKEN: ', 0));
+        if token$id = identifier then
+        do;
+            call print$string(.('IDENTIFIER:', 0));
+            call print$string(token$str);
+        end;
+        else if token$id = end$of$input then
+            call print$string(.('END OF INPUT', 0));
+        else
+            call print$string(.('UNKNOWN TOKEN', 0));
+    end print$token;
+
     /* MAIN PROGRAM */
     declare tail$ptr pointer;
     declare tail$chr based tail$ptr byte;
     declare tail$len byte;
+    declare i byte;
 
     tail$ptr = tail$start;
     tail$len = tail$chr;
@@ -161,6 +198,17 @@ $include (d:iocld.src)
     call print$string(.('string entered: {', 0));
     call print$string(tail$start + 1);
     call print$line(.('}', 0));
+    reader$ptr = tail$start + 2;
+    i = 0;
+    do while i < 4 and not get$token = end$of$input;
+        call print$string(reader$ptr);
+        call print$line(.('$', 0));
+        /* TODO: tokenizer interface (read$token, get$token)?? */
+        call print$token;
+        call new$line;
+        call read$token;
+        i = i + 1;
+    end;
 
 end;
-
+
