@@ -4,7 +4,7 @@ readgen:
 $include (d:iocld.src)
 
     declare pointer literally 'address';
-    declare word literally 'address';
+    declare uint literally 'address';
     declare boolean literally 'byte';
     declare true literally '1';
     declare false literally '0';
@@ -41,6 +41,24 @@ $include (d:iocld.src)
         call new$line;
     end print$line;
 
+    print$number: procedure (n);
+        declare n uint;
+        declare buf (10) byte;
+        declare i uint;
+        if n = 0 then
+            call print$char('0');
+        else do;
+            i = length(buf) - 2;
+            buf(i+1) = 0;
+            do while n > 0;
+                buf(i) = n mod 10 + '0';
+                n = n / 10;
+                i = i - 1;
+            end;
+            call print$string(.buf(i+1));
+        end;
+    end print$number;
+
     string$equal: procedure (p$str1, p$str2) boolean;
         declare (p$str1, p$str2) pointer;
         declare str1 based p$str1 byte;
@@ -71,7 +89,7 @@ $include (d:iocld.src)
     /* tokenizer variables */
     declare token$ready boolean initial (false);
     declare token$id byte;
-    declare token$value word;
+    declare token$value uint;
     declare token$str pointer;
     declare tbuf$len literally '80h';
     declare tok$buf (tbuf$len) byte;
@@ -89,10 +107,12 @@ $include (d:iocld.src)
             return true;
         if chr >= 'A' and chr <= 'Z' then
             return true;
+/*
         if chr >= '0' and chr <= '9' then
             return true;
         if chr = '$' or chr = '_' then
             return true;
+*/
         return false;
     end word$char;
 
@@ -134,6 +154,19 @@ $include (d:iocld.src)
         token$ready = true;
     end read$word;
 
+    /* read a number from the input */
+    read$number: procedure ;
+        declare n uint;
+        n = 0;
+        do while dec$char(reader$chr);
+            n = n * 10 + reader$chr - '0';
+            call next$char;
+        end;
+        token$id = number;
+        token$value = n;
+        token$ready = true;
+    end read$number;
+
     read$char: procedure;
         if not input$end then
             call next$char;
@@ -141,14 +174,6 @@ $include (d:iocld.src)
         /* TODO: determine token$id based on the character */
         token$ready = true;
     end read$char;
-
-    read$number: procedure;
-        /* TODO: implement */
-        token$id = number;
-        token$value = 0ffffh;
-        call next$char;
-        token$ready = true;
-    end read$number;
 
 
     read$token: procedure;
@@ -179,6 +204,11 @@ $include (d:iocld.src)
             call print$string(.('IDENTIFIER:', 0));
             call print$string(token$str);
         end;
+        else if token$id = number then
+        do;
+            call print$string(.('NUMBER:', 0));
+            call print$number(token$value);
+        end;
         else if token$id = end$of$input then
             call print$string(.('END OF INPUT', 0));
         else
@@ -203,7 +233,6 @@ $include (d:iocld.src)
     do while i < 4 and not get$token = end$of$input;
         call print$string(reader$ptr);
         call print$line(.('$', 0));
-        /* TODO: tokenizer interface (read$token, get$token)?? */
         call print$token;
         call new$line;
         call read$token;
@@ -211,4 +240,4 @@ $include (d:iocld.src)
     end;
 
 end;
-
+
