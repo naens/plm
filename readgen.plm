@@ -75,13 +75,34 @@ $include (d:iocld.src)
     /* reader variables */
     declare reader$ptr pointer;   /* pointer to the current string */
     declare reader$chr based reader$ptr byte;
+    declare reader$prev byte;
+    declare reader$saved byte initial (0);
 
     input$end: procedure boolean;
         return reader$chr = 0;
     end input$end;
 
+    get$char: procedure byte;
+        return reader$chr;
+    end get$char;
+
+    unread$char: procedure;
+        reader$saved = reader$chr;
+        reader$chr = reader$prev;
+    end unread$char;
+
     next$char: procedure;
-        reader$ptr = reader$ptr + 1;
+        if reader$saved = 0 then
+        do;
+            reader$prev = reader$chr;
+            reader$ptr = reader$ptr + 1;
+        end;
+        else
+        do;
+            reader$prev = reader$chr;
+            reader$chr = reader$saved;
+            reader$saved = 0;
+        end;
     end next$char;
 
 
@@ -131,7 +152,7 @@ $include (d:iocld.src)
     /* skips characters equivalent to a space */
     /* TODO: also skip comments */
     skip$spaces: procedure pointer;
-        do while space$char(reader$chr);
+        do while space$char(get$char);
             call next$char;
         end;
     end skip$spaces;
@@ -145,8 +166,8 @@ $include (d:iocld.src)
         token$str = buffer$ptr;
         /* TODO: check buffer length before writing! */
         /* buffer length is in constant tbuf$len */
-        do while not input$end and word$char(reader$chr);
-            buffer$chr = reader$chr;
+        do while not input$end and word$char(get$char);
+            buffer$chr = get$char;
             buffer$ptr = buffer$ptr + 1;
             call next$char;
         end;
@@ -158,8 +179,8 @@ $include (d:iocld.src)
     read$number: procedure ;
         declare n uint;
         n = 0;
-        do while dec$char(reader$chr);
-            n = n * 10 + reader$chr - '0';
+        do while dec$char(get$char);
+            n = n * 10 + get$char - '0';
             call next$char;
         end;
         token$id = number;
@@ -175,14 +196,13 @@ $include (d:iocld.src)
         token$ready = true;
     end read$char;
 
-
     read$token: procedure;
         call skip$spaces;    /* skip spaces before reading the next token */
         if input$end then
             token$id = end$of$input;
-        else if dec$char(reader$chr) then
+        else if dec$char(get$char) then
             call read$number;
-        else if word$char(reader$chr) then
+        else if word$char(get$char) then
             call read$word;
         else
             call read$char;
@@ -231,8 +251,6 @@ $include (d:iocld.src)
     reader$ptr = tail$start + 2;
     i = 0;
     do while i < 4 and not get$token = end$of$input;
-        call print$string(reader$ptr);
-        call print$line(.('$', 0));
         call print$token;
         call new$line;
         call read$token;
@@ -240,4 +258,4 @@ $include (d:iocld.src)
     end;
 
 end;
-
+
