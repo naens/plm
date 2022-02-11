@@ -75,7 +75,7 @@ $include (d:iocld.src)
     /* reader variables */
     declare reader$ptr pointer;   /* pointer to the current string */
     declare reader$chr based reader$ptr byte;
-    declare reader$prev byte;
+    declare reader$prev byte initial (0);
     declare reader$saved byte initial (0);
 
     input$end: procedure boolean;
@@ -83,12 +83,14 @@ $include (d:iocld.src)
     end input$end;
 
     get$char: procedure byte;
-        return reader$chr;
+        if reader$saved = 0 then
+            return reader$chr;
+        else
+            return reader$saved;
     end get$char;
 
     unread$char: procedure;
-        reader$saved = reader$chr;
-        reader$chr = reader$prev;
+        reader$saved = reader$prev;
     end unread$char;
 
     next$char: procedure;
@@ -96,11 +98,15 @@ $include (d:iocld.src)
         do;
             reader$prev = reader$chr;
             reader$ptr = reader$ptr + 1;
+/*
+            call print$string(.('new:',0));
+            call print$char('{');
+            call print$char(reader$chr);
+            call print$char('}');
+*/
         end;
         else
         do;
-            reader$prev = reader$chr;
-            reader$chr = reader$saved;
             reader$saved = 0;
         end;
     end next$char;
@@ -240,6 +246,8 @@ $include (d:iocld.src)
     declare tail$chr based tail$ptr byte;
     declare tail$len byte;
     declare i byte;
+    declare cmd$ptr pointer;
+    declare cmd$chr based cmd$ptr byte;
 
     tail$ptr = tail$start;
     tail$len = tail$chr;
@@ -249,6 +257,34 @@ $include (d:iocld.src)
     call print$string(tail$start + 1);
     call print$line(.('}', 0));
     reader$ptr = tail$start + 2;
+    if get$token = end$of$input then
+        goto exit;
+    if token$id <> identifier then
+        goto exit;
+    call skip$spaces;
+    call print$string(.('string:',0));
+    call print$line(reader$ptr);
+    cmd$ptr = token$str;
+    do while cmd$chr <> 0;
+        call print$char('[');
+        call print$char(get$char);
+        call print$char(']');
+        call print$char(cmd$chr);
+        if cmd$chr = 'N' then
+            call next$char;
+        else if cmd$chr = 'U' then
+        do;
+            call print$char('<');
+            call unread$char;
+        end;
+        call print$char('.');
+        call print$char('[');
+        call print$char(get$char);
+        call print$char(']');
+        call new$line;
+        cmd$ptr = cmd$ptr + 1;
+    end;
+/*
     i = 0;
     do while i < 4 and not get$token = end$of$input;
         call print$token;
@@ -256,6 +292,8 @@ $include (d:iocld.src)
         call read$token;
         i = i + 1;
     end;
+*/
+exit:
 
 end;
-
+
