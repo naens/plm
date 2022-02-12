@@ -98,12 +98,6 @@ $include (d:iocld.src)
         do;
             reader$prev = reader$chr;
             reader$ptr = reader$ptr + 1;
-/*
-            call print$string(.('new:',0));
-            call print$char('{');
-            call print$char(reader$chr);
-            call print$char('}');
-*/
         end;
         else
         do;
@@ -157,11 +151,22 @@ $include (d:iocld.src)
 
     /* skips characters equivalent to a space */
     /* TODO: also skip comments */
-    skip$spaces: procedure pointer;
+    skip$spaces: procedure;
         do while space$char(get$char);
             call next$char;
         end;
     end skip$spaces;
+
+    /* skip the comment after the '/*' sequence was read */
+    skip$comment: procedure;
+        declare star boolean;
+        star = false;
+        call next$char;
+        do while not input$end and not (star and get$char = '/');
+            star = (get$char = '*');
+            call next$char;
+        end;
+    end skip$comment;
 
     /* read a string that may be an identifier or a keyword */
     read$word: procedure;
@@ -206,16 +211,27 @@ $include (d:iocld.src)
         call skip$spaces;    /* skip spaces before reading the next token */
         if input$end then
             token$id = end$of$input;
-        else if dec$char(get$char) then
-            call read$number;
-        else if word$char(get$char) then
-            call read$word;
         else
-            call read$char;
+        do;
+     /* TODO: fix (a) number when first token, (b) comments read as unknown  */
+            if get$char = '/' then
+            do;
+                call next$char;
+                if get$char <> '*' then
+                    call unread$char;
+                else
+                    call skip$comment;
+            end;
+            if dec$char(get$char) then
+                call read$number;
+            else if word$char(get$char) then
+                call read$word;
+            else
+                call read$char;
+       end; /* test input$end */
     end read$token;
 
     get$token: procedure byte;
-        call print$line(.('get$token', 0));
         if not token$ready then
             call read$token;
         return token$id;
@@ -261,6 +277,7 @@ $include (d:iocld.src)
         goto exit;
     if token$id <> identifier then
         goto exit;
+/*
     call skip$spaces;
     call print$string(.('string:',0));
     call print$line(reader$ptr);
@@ -284,7 +301,7 @@ $include (d:iocld.src)
         call new$line;
         cmd$ptr = cmd$ptr + 1;
     end;
-/*
+*/
     i = 0;
     do while i < 4 and not get$token = end$of$input;
         call print$token;
@@ -292,8 +309,7 @@ $include (d:iocld.src)
         call read$token;
         i = i + 1;
     end;
-*/
 exit:
 
 end;
-
+
