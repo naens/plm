@@ -89,10 +89,6 @@ $include (d:iocld.src)
             return reader$saved;
     end get$char;
 
-    unread$char: procedure;
-        reader$saved = reader$prev;
-    end unread$char;
-
     next$char: procedure;
         if reader$saved = 0 then
         do;
@@ -104,6 +100,26 @@ $include (d:iocld.src)
             reader$saved = 0;
         end;
     end next$char;
+
+    unread$char: procedure;
+        reader$saved = reader$prev;
+    end unread$char;
+
+    /* test character and get the next one */
+    /* advance to the next char only if it matches, otherwise unread */
+    consume$char: procedure (chr) boolean;
+        declare chr byte;
+        if chr = get$char then
+        do;
+            call next$char;
+            return true;
+        end;
+        else
+        do;
+            call unread$char;
+            return false;
+        end;
+    end consume$char;
 
 
     /* TOKENIZER */
@@ -160,12 +176,15 @@ $include (d:iocld.src)
     /* skip the comment after the '/*' sequence was read */
     skip$comment: procedure;
         declare star boolean;
+        call print$line(.('<skip-comment>', 0));
         star = false;
         call next$char;
         do while not input$end and not (star and get$char = '/');
             star = (get$char = '*');
             call next$char;
         end;
+        if not input$end then
+            call next$char;
     end skip$comment;
 
     /* read a string that may be an identifier or a keyword */
@@ -200,6 +219,11 @@ $include (d:iocld.src)
     end read$number;
 
     read$char: procedure;
+        call print$string(.('[readchar:',0));
+        call print$char(reader$chr);
+        call print$char(':');
+        call print$number(reader$chr);
+        call print$char(']');
         if not input$end then
             call next$char;
         token$id = 0ffh;
@@ -209,26 +233,20 @@ $include (d:iocld.src)
 
     read$token: procedure;
         call skip$spaces;    /* skip spaces before reading the next token */
+
+        /* Skip all comments. */
+        do while not input$end and consume$char('/') and consume$char('*');
+            call skip$comment;
+            call skip$spaces;
+        end;
         if input$end then
             token$id = end$of$input;
+        else if dec$char(get$char) then
+            call read$number;
+        else if word$char(get$char) then
+            call read$word;
         else
-        do;
-     /* TODO: fix (a) number when first token, (b) comments read as unknown  */
-            if get$char = '/' then
-            do;
-                call next$char;
-                if get$char <> '*' then
-                    call unread$char;
-                else
-                    call skip$comment;
-            end;
-            if dec$char(get$char) then
-                call read$number;
-            else if word$char(get$char) then
-                call read$word;
-            else
-                call read$char;
-       end; /* test input$end */
+            call read$char;
     end read$token;
 
     get$token: procedure byte;
@@ -254,7 +272,10 @@ $include (d:iocld.src)
         else if token$id = end$of$input then
             call print$string(.('END OF INPUT', 0));
         else
-            call print$string(.('UNKNOWN TOKEN', 0));
+        do;
+            call print$string(.('UNKNOWN TOKEN:', 0));
+            call print$number(token$id);
+        end;
     end print$token;
 
     /* MAIN PROGRAM */
@@ -312,4 +333,4 @@ $include (d:iocld.src)
 exit:
 
 end;
-
+
