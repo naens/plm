@@ -105,21 +105,30 @@ $include (d:iocld.src)
         reader$saved = reader$prev;
     end unread$char;
 
-    /* test character and get the next one */
-    /* advance to the next char only if it matches, otherwise unread */
-    consume$char: procedure (chr) boolean;
+    check$char: procedure (chr) boolean;
         declare chr byte;
-        if chr = get$char then
+        if not input$end then
         do;
-            call next$char;
-            return true;
+            if chr = get$char then
+            do;
+                call next$char;
+                return true;
+            end;
         end;
-        else
+        return false;
+    end check$char;
+
+    check$2chars: procedure (c1, c2) boolean;
+        declare (c1, c2) byte;
+        if check$char(c1) then
         do;
-            call unread$char;
-            return false;
+            if check$char(c2) then
+                return true;
+            else
+                call unread$char;
         end;
-    end consume$char;
+        return false;
+    end check$2chars;
 
 
     /* TOKENIZER */
@@ -176,9 +185,7 @@ $include (d:iocld.src)
     /* skip the comment after the '/*' sequence was read */
     skip$comment: procedure;
         declare star boolean;
-        call print$line(.('<skip-comment>', 0));
         star = false;
-        call next$char;
         do while not input$end and not (star and get$char = '/');
             star = (get$char = '*');
             call next$char;
@@ -235,7 +242,7 @@ $include (d:iocld.src)
         call skip$spaces;    /* skip spaces before reading the next token */
 
         /* Skip all comments. */
-        do while not input$end and consume$char('/') and consume$char('*');
+        do while check$2chars('/', '*');
             call skip$comment;
             call skip$spaces;
         end;
@@ -294,10 +301,6 @@ $include (d:iocld.src)
     call print$string(tail$start + 1);
     call print$line(.('}', 0));
     reader$ptr = tail$start + 2;
-    if get$token = end$of$input then
-        goto exit;
-    if token$id <> identifier then
-        goto exit;
 /*
     call skip$spaces;
     call print$string(.('string:',0));
@@ -324,7 +327,7 @@ $include (d:iocld.src)
     end;
 */
     i = 0;
-    do while i < 4 and not get$token = end$of$input;
+    do while i < 10 and get$token <> end$of$input;
         call print$token;
         call new$line;
         call read$token;
@@ -333,4 +336,3 @@ $include (d:iocld.src)
 exit:
 
 end;
-
