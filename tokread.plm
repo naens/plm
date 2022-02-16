@@ -73,6 +73,24 @@
     declare identifier literally '2';
     declare number literally '3';
 
+    /* special characters */
+    declare plus literally '100';
+    declare minus literally '101';
+    declare star literally '102';
+    declare slash literally '103';
+    declare lower literally '104';
+    declare greater literally '105';
+    declare equals literally '106';
+    declare colon literally '107';
+    declare semicolon literally '108';
+    declare par$op literally '109';
+    declare par$cl literally '110';
+    declare at$chr literally '111';
+    declare underscore literally '112';
+
+    declare unknown$char literally '0ffh';
+
+
     /* check whether the character is an identifier or a keyword character */
     word$char: procedure (chr) boolean;
         declare chr byte;
@@ -159,10 +177,20 @@
         call print$number(reader$chr);
         call print$char(']');
         if not input$end then
+        do;
+            if get$char = '+' then
+                token$id = plus;
+            else if get$char = '-' then
+                token$id = minus;
+            else if get$char = '*' then
+                token$id = star;
+            else if get$char = '/' then
+                token$id = slash;
+            else
+                token$id = unknown$char;
             call next$char;
-        token$id = 0ffh;
-        /* TODO: determine token$id based on the character */
-        token$ready = true;
+            token$ready = true;
+        end;
     end read$char;
 
     read$token: procedure;
