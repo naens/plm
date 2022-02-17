@@ -74,8 +74,8 @@
     declare number literally '3';
 
     /* special characters */
-    declare plus literally '100';
-    declare minus literally '101';
+    declare plus$char literally '100';
+    declare minus$char literally '101';
     declare star literally '102';
     declare slash literally '103';
     declare lower literally '104';
@@ -129,10 +129,10 @@
 
     /* skip the comment after the '/*' sequence was read */
     skip$comment: procedure;
-        declare star boolean;
-        star = false;
-        do while not input$end and not (star and get$char = '/');
-            star = (get$char = '*');
+        declare star$state boolean;
+        star$state = false;
+        do while not input$end and not (star$state and get$char = '/');
+            star$state = (get$char = '*');
             call next$char;
         end;
         if not input$end then
@@ -179,9 +179,9 @@
         if not input$end then
         do;
             if get$char = '+' then
-                token$id = plus;
+                token$id = plus$char;
             else if get$char = '-' then
-                token$id = minus;
+                token$id = minus$char;
             else if get$char = '*' then
                 token$id = star;
             else if get$char = '/' then
