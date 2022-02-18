@@ -74,21 +74,21 @@
     declare number literally '3';
 
     /* special characters */
-    declare plus$char literally '100';
-    declare minus$char literally '101';
-    declare star literally '102';
-    declare slash literally '103';
-    declare lower literally '104';
-    declare greater literally '105';
-    declare equals literally '106';
-    declare colon literally '107';
-    declare semicolon literally '108';
-    declare par$op literally '109';
-    declare par$cl literally '110';
-    declare at$chr literally '111';
-    declare underscore literally '112';
+    declare tok$plus literally '100';
+    declare tok$minus literally '101';
+    declare tok$star literally '102';
+    declare tok$slash literally '103';
+    declare tok$lower literally '104';
+    declare tok$greater literally '105';
+    declare tok$equals literally '106';
+    declare tok$colon literally '107';
+    declare tok$semicolon literally '108';
+    declare tok$par$op literally '109';
+    declare tok$par$cl literally '110';
+    declare tok$at literally '111';
+    declare tok$underscore literally '112';
 
-    declare unknown$char literally '0ffh';
+    declare tok$unknown literally '0ffh';
 
 
     /* check whether the character is an identifier or a keyword character */
@@ -171,23 +171,29 @@
     end read$number;
 
     read$char: procedure;
+/*
         call print$string(.('[readchar:',0));
         call print$char(reader$chr);
         call print$char(':');
         call print$number(reader$chr);
         call print$char(']');
+*/
         if not input$end then
         do;
             if get$char = '+' then
-                token$id = plus$char;
+                token$id = tok$plus;
             else if get$char = '-' then
-                token$id = minus$char;
+                token$id = tok$minus;
             else if get$char = '*' then
-                token$id = star;
+                token$id = tok$star;
             else if get$char = '/' then
-                token$id = slash;
+                token$id = tok$slash;
+            else if get$char = '<' then
+                token$id = tok$lower;
+            else if get$char = '>' then
+                token$id = tok$greater;
             else
-                token$id = unknown$char;
+                token$id = tok$unknown;
             call next$char;
             token$ready = true;
         end;
@@ -233,7 +239,19 @@
         end;
         else if token$id = end$of$input then
             call print$string(.('END OF INPUT', 0));
-        else
+        else if token$id = tok$plus then
+            call print$string(.('PLUS', 0));
+        else if token$id = tok$minus then
+            call print$string(.('MINUS', 0));
+        else if token$id = tok$star then
+            call print$string(.('STAR', 0));
+        else if token$id = tok$slash then
+            call print$string(.('SLASH', 0));
+        else if token$id = tok$lower then
+            call print$string(.('LOWER', 0));
+        else if token$id = tok$greater then
+            call print$string(.('GREATER', 0));
+        else /***/
         do;
             call print$string(.('UNKNOWN TOKEN:', 0));
             call print$number(token$id);
