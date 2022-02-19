@@ -192,6 +192,20 @@
                 token$id = tok$lower;
             else if get$char = '>' then
                 token$id = tok$greater;
+            else if get$char = '=' then
+                token$id = tok$equals;
+            else if get$char = ':' then
+                token$id = tok$colon;
+            else if get$char = ';' then
+                token$id = tok$semicolon;
+            else if get$char = '(' then
+                token$id = tok$par$op;
+            else if get$char = ')' then
+                token$id = tok$par$cl;
+            else if get$char = '@' then
+                token$id = tok$at;
+            else if get$char = '_' then
+                token$id = tok$underscore;
             else
                 token$id = tok$unknown;
             call next$char;
@@ -251,6 +265,18 @@
             call print$string(.('LOWER', 0));
         else if token$id = tok$greater then
             call print$string(.('GREATER', 0));
+        else if token$id = tok$colon then
+            call print$string(.('COLON', 0));
+        else if token$id = tok$semicolon then
+            call print$string(.('SEMICOLON', 0));
+        else if token$id = tok$par$op then
+            call print$string(.('PAR_OP', 0));
+        else if token$id = tok$par$cl then
+            call print$string(.('PAR_CL', 0));
+        else if token$id = tok$at then
+            call print$string(.('AT', 0));
+        else if token$id = tok$underscore then
+            call print$string(.('UNDERSCORE', 0));
         else /***/
         do;
             call print$string(.('UNKNOWN TOKEN:', 0));
