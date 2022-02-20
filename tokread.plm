@@ -69,8 +69,7 @@
 
     /* token ids */
     declare end$of$input literally '0';
-    declare keyword literally '1';
-    declare identifier literally '2';
+    declare tok$ident literally '2';
     declare number literally '3';
 
     /* special characters */
@@ -87,6 +86,12 @@
     declare tok$par$cl literally '110';
     declare tok$at literally '111';
     declare tok$underscore literally '112';
+
+    /* keywords */
+    declare tok$declare literally '10';
+    declare tok$byte literally '20';
+    declare tok$do literally '30';
+    declare tok$end literally '31';
 
     declare tok$unknown literally '0ffh';
 
@@ -139,12 +144,27 @@
             call next$char;
     end skip$comment;
 
+    /* check if token$str is a keyword, and if so return it,
+       otherwise return tok$ident
+    */
+    str$tok$id: procedure byte;
+        if string$equal(token$str, .('DECLARE', 0)) then
+            return tok$declare;
+        else if string$equal(token$str, .('BYTE', 0)) then
+            return tok$byte;
+        else if string$equal(token$str, .('DO', 0)) then
+            return tok$do;
+        else if string$equal(token$str, .('END', 0)) then
+            return tok$end;
+        else /***/
+            return tok$ident;
+    end str$tok$id;
+
     /* read a string that may be an identifier or a keyword */
     read$word: procedure;
         declare buffer$ptr pointer;
         declare buffer$chr based buffer$ptr byte;
         buffer$ptr = .tok$buf;
-        token$id = identifier;
         token$str = buffer$ptr;
         /* TODO: check buffer length before writing! */
         /* buffer length is in constant tbuf$len */
@@ -155,6 +175,7 @@
         end;
         buffer$chr = 0;
         token$ready = true;
+        token$id = str$tok$id;
     end read$word;
 
     /* read a number from the input */
@@ -241,7 +262,7 @@
     /* print token without new line */
     print$token: procedure;
         call print$string(.('TOKEN: ', 0));
-        if token$id = identifier then
+        if token$id = tok$ident then
         do;
             call print$string(.('IDENTIFIER:', 0));
             call print$string(token$str);
@@ -253,6 +274,10 @@
         end;
         else if token$id = end$of$input then
             call print$string(.('END OF INPUT', 0));
+    /* TODO:  separate into dedicated printing functions,
+        for examples: pr$tok$chr, pr$tok$kw...
+     */
+/*
         else if token$id = tok$plus then
             call print$string(.('PLUS', 0));
         else if token$id = tok$minus then
@@ -271,12 +296,21 @@
             call print$string(.('SEMICOLON', 0));
         else if token$id = tok$par$op then
             call print$string(.('PAR_OP', 0));
+*/
         else if token$id = tok$par$cl then
             call print$string(.('PAR_CL', 0));
         else if token$id = tok$at then
             call print$string(.('AT', 0));
         else if token$id = tok$underscore then
             call print$string(.('UNDERSCORE', 0));
+        else if token$id = tok$declare then
+            call print$string(.('DECLARE', 0));
+        else if token$id = tok$byte then
+            call print$string(.('BYTE', 0));
+        else if token$id = tok$do then
+            call print$string(.('DO', 0));
+        else if token$id = tok$end then
+            call print$string(.('END'));
         else /***/
         do;
             call print$string(.('UNKNOWN TOKEN:', 0));

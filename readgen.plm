@@ -5,7 +5,6 @@ $include (d:iocld.src)
 
 $include (globlit.inc)
 $include (cons.plm)
-$include (tokread.plm)
 
 
     /* STRING SUBROUTINES */
@@ -19,6 +18,8 @@ $include (tokread.plm)
         end;
         return str1 = 0 and str2 = 0;
     end string$equal;
+
+$include (tokread.plm)
 
 
     /* MAIN PROGRAM */
