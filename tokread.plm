@@ -1,3 +1,12 @@
+tokread:
+do;
+
+$include (d:iocld.src)
+
+$include (globlit.inc)
+$include (string.plm)
+$include (cons.plm)
+
     /* READER */
     /* reader variables */
     declare reader$ptr pointer;   /* pointer to the current string */
@@ -72,26 +81,37 @@
     declare tok$ident literally '2';
     declare number literally '3';
 
-    /* special characters */
-    declare tok$plus literally '100';
-    declare tok$minus literally '101';
-    declare tok$star literally '102';
-    declare tok$slash literally '103';
-    declare tok$lower literally '104';
-    declare tok$greater literally '105';
-    declare tok$equals literally '106';
-    declare tok$colon literally '107';
-    declare tok$semicolon literally '108';
-    declare tok$par$op literally '109';
-    declare tok$par$cl literally '110';
-    declare tok$at literally '111';
-    declare tok$underscore literally '112';
+    /* special characters: in range [50..62] */
+    declare tok$plus literally '50';
+    declare tok$minus literally '51';
+    declare tok$star literally '52';
+    declare tok$slash literally '53';
+    declare tok$lower literally '54';
+    declare tok$greater literally '55';
+    declare tok$equals literally '56';
+    declare tok$colon literally '57';
+    declare tok$semicolon literally '58';
+    declare tok$par$op literally '59';
+    declare tok$par$cl literally '60';
+    declare tok$at literally '61';
+    declare tok$underscore literally '62';
 
-    /* keywords */
-    declare tok$declare literally '10';
-    declare tok$byte literally '20';
-    declare tok$do literally '30';
-    declare tok$end literally '31';
+    /* keywords: in range [100..150] */
+    declare tok$declare literally '100';
+    declare tok$byte literally '110';
+
+    is$character: procedure (tok$id) boolean;
+        declare tok$id byte;
+        return tok$id >= 50 and tok$id <= 62;
+    end is$character;
+
+    is$keyword: procedure (tok$id) boolean;
+        declare tok$id byte;
+        return tok$id >= 100 and tok$id <= 150;
+    end is$keyword;
+
+    declare tok$do literally '120';
+    declare tok$end literally '140';
 
     declare tok$unknown literally '0ffh';
 
@@ -259,6 +279,48 @@
     end get$token;
 
 
+    pr$chr$tok: procedure (tok$id);
+        declare tok$id byte;
+        if tok$id = tok$plus then
+            call print$string(.('PLUS', 0));
+/*
+        else if tok$id = tok$minus then
+            call print$string(.('MINUS', 0));
+        else if tok$id = tok$star then
+            call print$string(.('STAR', 0));
+        else if tok$id = tok$slash then
+            call print$string(.('SLASH', 0));
+        else if tok$id = tok$lower then
+            call print$string(.('LOWER', 0));
+        else if tok$id = tok$greater then
+            call print$string(.('GREATER', 0));
+        else if tok$id = tok$colon then
+            call print$string(.('COLON', 0));
+        else if tok$id = tok$semicolon then
+            call print$string(.('SEMICOLON', 0));
+        else if tok$id = tok$par$op then
+            call print$string(.('PAR_OP', 0));
+        else if tok$id = tok$par$cl then
+            call print$string(.('PAR_CL', 0));
+        else if tok$id = tok$at then
+            call print$string(.('AT', 0));
+        else if tok$id = tok$underscore then
+            call print$string(.('UNDERSCORE', 0));
+*/
+    end pr$chr$tok;
+
+    pr$kw$tok: procedure (tok$id);
+        declare tok$id byte;
+        if tok$id = tok$declare then
+            call print$string(.('DECLARE', 0));
+        else if tok$id = tok$byte then
+            call print$string(.('BYTE', 0));
+        else if tok$id = tok$do then
+            call print$string(.('DO', 0));
+        else if tok$id = tok$end then
+            call print$string(.('END'));
+    end pr$kw$tok;
+
     /* print token without new line */
     print$token: procedure;
         call print$string(.('TOKEN: ', 0));
@@ -274,43 +336,10 @@
         end;
         else if token$id = end$of$input then
             call print$string(.('END OF INPUT', 0));
-    /* TODO:  separate into dedicated printing functions,
-        for examples: pr$tok$chr, pr$tok$kw...
-     */
-/*
-        else if token$id = tok$plus then
-            call print$string(.('PLUS', 0));
-        else if token$id = tok$minus then
-            call print$string(.('MINUS', 0));
-        else if token$id = tok$star then
-            call print$string(.('STAR', 0));
-        else if token$id = tok$slash then
-            call print$string(.('SLASH', 0));
-        else if token$id = tok$lower then
-            call print$string(.('LOWER', 0));
-        else if token$id = tok$greater then
-            call print$string(.('GREATER', 0));
-        else if token$id = tok$colon then
-            call print$string(.('COLON', 0));
-        else if token$id = tok$semicolon then
-            call print$string(.('SEMICOLON', 0));
-        else if token$id = tok$par$op then
-            call print$string(.('PAR_OP', 0));
-*/
-        else if token$id = tok$par$cl then
-            call print$string(.('PAR_CL', 0));
-        else if token$id = tok$at then
-            call print$string(.('AT', 0));
-        else if token$id = tok$underscore then
-            call print$string(.('UNDERSCORE', 0));
-        else if token$id = tok$declare then
-            call print$string(.('DECLARE', 0));
-        else if token$id = tok$byte then
-            call print$string(.('BYTE', 0));
-        else if token$id = tok$do then
-            call print$string(.('DO', 0));
-        else if token$id = tok$end then
-            call print$string(.('END'));
+        else if is$character(token$id) then
+            call pr$chr$tok(token$id);
+        else if is$keyword(token$id) then
+            call pr$kw$tok(token$id);
         else /***/
         do;
             call print$string(.('UNKNOWN TOKEN:', 0));
@@ -318,3 +347,4 @@
         end;
     end print$token;
 
+end;

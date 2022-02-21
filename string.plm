@@ -1,0 +1,12 @@
+    /* STRING SUBROUTINES */
+    string$equal: procedure (p$str1, p$str2) boolean;
+        declare (p$str1, p$str2) pointer;
+        declare str1 based p$str1 byte;
+        declare str2 based p$str2 byte;
+        do while str1 <> 0 and str2 <> 0 and str1 = str2;
+            p$str1 = p$str1 + 1;
+            p$str2 = p$str2 + 1;
+        end;
+        return str1 = 0 and str2 = 0;
+    end string$equal;
+
