@@ -1,0 +1,8 @@
+era readgen.mac
+era readgen.com
+era readgen.sym
+era readgen.rel
+d:plmx readgen.plm; C+ M+ L-
+m80 =readgen
+link readgen,tokread,d:iolib[s],d:rlib[s]
+

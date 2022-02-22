@@ -4,22 +4,23 @@ readgen:
 $include (d:iocld.src)
 
 $include (globlit.inc)
+$include (toklit.inc)
 $include (cons.plm)
+$include (string.plm)
 
 
-    /* STRING SUBROUTINES */
-    string$equal: procedure (p$str1, p$str2) boolean;
-        declare (p$str1, p$str2) pointer;
-        declare str1 based p$str1 byte;
-        declare str2 based p$str2 byte;
-        do while str1 <> 0 and str2 <> 0 and str1 = str2;
-            p$str1 = p$str1 + 1;
-            p$str2 = p$str2 + 1;
-        end;
-        return str1 = 0 and str2 = 0;
-    end string$equal;
+    reader$set$ptr: procedure (ptr) external;
+        declare ptr pointer;
+    end reader$set$ptr;
 
-$include (tokread.plm)
+    get$token: procedure byte external;
+    end get$token;
+
+    print$token: procedure external;
+    end print$token;
+
+    read$token: procedure external;
+    end read$token;
 
 
     /* MAIN PROGRAM */
@@ -37,34 +38,9 @@ $include (tokread.plm)
     call print$string(.('string entered: {', 0));
     call print$string(tail$start + 1);
     call print$line(.('}', 0));
-    reader$ptr = tail$start + 2;
-/*
-    call skip$spaces;
-    call print$string(.('string:',0));
-    call print$line(reader$ptr);
-    cmd$ptr = token$str;
-    do while cmd$chr <> 0;
-        call print$char('[');
-        call print$char(get$char);
-        call print$char(']');
-        call print$char(cmd$chr);
-        if cmd$chr = 'N' then
-            call next$char;
-        else if cmd$chr = 'U' then
-        do;
-            call print$char('<');
-            call unread$char;
-        end;
-        call print$char('.');
-        call print$char('[');
-        call print$char(get$char);
-        call print$char(']');
-        call new$line;
-        cmd$ptr = cmd$ptr + 1;
-    end;
-*/
+    call reader$set$ptr(tail$start + 2);
     i = 0;
-    do while i < 10 and get$token <> end$of$input;
+    do while i < 10 and get$token <> tok$end$of$input;
         call print$token;
         call new$line;
         call read$token;

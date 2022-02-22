@@ -4,6 +4,7 @@ do;
 $include (d:iocld.src)
 
 $include (globlit.inc)
+$include (toklit.inc)
 $include (string.plm)
 $include (cons.plm)
 
@@ -13,6 +14,11 @@ $include (cons.plm)
     declare reader$chr based reader$ptr byte;
     declare reader$prev byte initial (0);
     declare reader$saved byte initial (0);
+
+    reader$set$ptr: procedure (ptr) public;
+        declare ptr pointer;
+        reader$ptr = ptr;
+    end reader$set$ptr;
 
     input$end: procedure boolean;
         return reader$chr = 0;
@@ -76,30 +82,6 @@ $include (cons.plm)
     declare tbuf$len literally '80h';
     declare tok$buf (tbuf$len) byte;
 
-    /* token ids */
-    declare end$of$input literally '0';
-    declare tok$ident literally '2';
-    declare number literally '3';
-
-    /* special characters: in range [50..62] */
-    declare tok$plus literally '50';
-    declare tok$minus literally '51';
-    declare tok$star literally '52';
-    declare tok$slash literally '53';
-    declare tok$lower literally '54';
-    declare tok$greater literally '55';
-    declare tok$equals literally '56';
-    declare tok$colon literally '57';
-    declare tok$semicolon literally '58';
-    declare tok$par$op literally '59';
-    declare tok$par$cl literally '60';
-    declare tok$at literally '61';
-    declare tok$underscore literally '62';
-
-    /* keywords: in range [100..150] */
-    declare tok$declare literally '100';
-    declare tok$byte literally '110';
-
     is$character: procedure (tok$id) boolean;
         declare tok$id byte;
         return tok$id >= 50 and tok$id <= 62;
@@ -109,11 +91,6 @@ $include (cons.plm)
         declare tok$id byte;
         return tok$id >= 100 and tok$id <= 150;
     end is$keyword;
-
-    declare tok$do literally '120';
-    declare tok$end literally '140';
-
-    declare tok$unknown literally '0ffh';
 
 
     /* check whether the character is an identifier or a keyword character */
@@ -206,7 +183,7 @@ $include (cons.plm)
             n = n * 10 + get$char - '0';
             call next$char;
         end;
-        token$id = number;
+        token$id = tok$number;
         token$value = n;
         token$ready = true;
     end read$number;
@@ -254,7 +231,7 @@ $include (cons.plm)
         end;
     end read$char;
 
-    read$token: procedure;
+    read$token: procedure public;
         call skip$spaces;    /* skip spaces before reading the next token */
 
         /* Skip all comments. */
@@ -263,7 +240,7 @@ $include (cons.plm)
             call skip$spaces;
         end;
         if input$end then
-            token$id = end$of$input;
+            token$id = tok$end;
         else if dec$char(get$char) then
             call read$number;
         else if word$char(get$char) then
@@ -272,7 +249,7 @@ $include (cons.plm)
             call read$char;
     end read$token;
 
-    get$token: procedure byte;
+    get$token: procedure byte public;
         if not token$ready then
             call read$token;
         return token$id;
@@ -329,12 +306,12 @@ $include (cons.plm)
             call print$string(.('IDENTIFIER:', 0));
             call print$string(token$str);
         end;
-        else if token$id = number then
+        else if token$id = tok$number then
         do;
             call print$string(.('NUMBER:', 0));
             call print$number(token$value);
         end;
-        else if token$id = end$of$input then
+        else if token$id = tok$end then
             call print$string(.('END OF INPUT', 0));
         else if is$character(token$id) then
             call pr$chr$tok(token$id);
