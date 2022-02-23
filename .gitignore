@@ -4,6 +4,8 @@
 *.sym
 *.bak
 *.com
+*.ram
+*.rom
 
 # backups
 *.bak
