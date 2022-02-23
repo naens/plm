@@ -1,5 +1,5 @@
     /* token ids */
-    declare tok$end$of$input literally '0';
+    declare tok$eof literally '0';
     declare tok$ident literally '2';
     declare tok$number literally '3';
     declare tok$string literally '4';

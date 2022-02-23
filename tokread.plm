@@ -240,7 +240,7 @@ $include (cons.plm)
             call skip$spaces;
         end;
         if input$end then
-            token$id = tok$end;
+            token$id = tok$eof;
         else if dec$char(get$char) then
             call read$number;
         else if word$char(get$char) then
@@ -295,11 +295,11 @@ $include (cons.plm)
         else if tok$id = tok$do then
             call print$string(.('DO', 0));
         else if tok$id = tok$end then
-            call print$string(.('END'));
+            call print$string(.('END', 0));
     end pr$kw$tok;
 
     /* print token without new line */
-    print$token: procedure;
+    pr$tok: procedure public;
         call print$string(.('TOKEN: ', 0));
         if token$id = tok$ident then
         do;
@@ -311,7 +311,7 @@ $include (cons.plm)
             call print$string(.('NUMBER:', 0));
             call print$number(token$value);
         end;
-        else if token$id = tok$end then
+        else if token$id = tok$eof then
             call print$string(.('END OF INPUT', 0));
         else if is$character(token$id) then
             call pr$chr$tok(token$id);
@@ -322,6 +322,6 @@ $include (cons.plm)
             call print$string(.('UNKNOWN TOKEN:', 0));
             call print$number(token$id);
         end;
-    end print$token;
+    end pr$tok;
 
 end;

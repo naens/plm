@@ -16,8 +16,8 @@ $include (string.plm)
     get$token: procedure byte external;
     end get$token;
 
-    print$token: procedure external;
-    end print$token;
+    pr$tok: procedure external;
+    end pr$tok;
 
     read$token: procedure external;
     end read$token;
@@ -40,8 +40,8 @@ $include (string.plm)
     call print$line(.('}', 0));
     call reader$set$ptr(tail$start + 2);
     i = 0;
-    do while i < 10 and get$token <> tok$end$of$input;
-        call print$token;
+    do while i < 10 and get$token <> tok$eof;
+        call pr$tok;
         call new$line;
         call read$token;
         i = i + 1;
