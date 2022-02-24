@@ -122,7 +122,6 @@ $include (cons.plm)
     end space$char;
 
     /* skips characters equivalent to a space */
-    /* TODO: also skip comments */
     skip$spaces: procedure;
         do while space$char(get$char);
             call next$char;
@@ -157,6 +156,10 @@ $include (cons.plm)
             return tok$ident;
     end str$tok$id;
 
+    /* read s string literal together with the terminating quote */
+    read$string: procedure;
+    end read$string;
+
     /* read a string that may be an identifier or a keyword */
     read$word: procedure;
         declare buffer$ptr pointer;
@@ -176,7 +179,7 @@ $include (cons.plm)
     end read$word;
 
     /* read a number from the input */
-    read$number: procedure ;
+    read$number: procedure;
         declare n uint;
         n = 0;
         do while dec$char(get$char);
@@ -198,6 +201,7 @@ $include (cons.plm)
 */
         if not input$end then
         do;
+            token$value = get$char;
             if get$char = '+' then
                 token$id = tok$plus;
             else if get$char = '-' then
@@ -241,6 +245,8 @@ $include (cons.plm)
         end;
         if input$end then
             token$id = tok$eof;
+        else if get$char = 27h then    /* the quote character is 27h */
+            call read$string;
         else if dec$char(get$char) then
             call read$number;
         else if word$char(get$char) then
@@ -258,9 +264,12 @@ $include (cons.plm)
 
     pr$chr$tok: procedure (tok$id);
         declare tok$id byte;
+        call print$string(.('CHR[', 0));
+        call print$char(low(token$value));
+        call print$char(']');
+/*
         if tok$id = tok$plus then
             call print$string(.('PLUS', 0));
-/*
         else if tok$id = tok$minus then
             call print$string(.('MINUS', 0));
         else if tok$id = tok$star then
@@ -310,6 +319,12 @@ $include (cons.plm)
         do;
             call print$string(.('NUMBER:', 0));
             call print$number(token$value);
+        end;
+        else if token$id = tok$string then
+        do;
+            call print$string(.('STRING: [', 0));
+            call print$string(token$str);
+            call print$char(']');
         end;
         else if token$id = tok$eof then
             call print$string(.('END OF INPUT', 0));
