@@ -156,7 +156,7 @@ $include (cons.plm)
             return tok$ident;
     end str$tok$id;
 
-    /* read s string literal together with the terminating quote */
+    /* read a string literal together with the terminating quote */
     read$string: procedure;
     end read$string;
 
@@ -210,6 +210,7 @@ $include (cons.plm)
                 token$id = tok$star;
             else if get$char = '/' then
                 token$id = tok$slash;
+/*
             else if get$char = '<' then
                 token$id = tok$lower;
             else if get$char = '>' then
@@ -220,14 +221,17 @@ $include (cons.plm)
                 token$id = tok$colon;
             else if get$char = ';' then
                 token$id = tok$semicolon;
+*/
             else if get$char = '(' then
                 token$id = tok$par$op;
             else if get$char = ')' then
                 token$id = tok$par$cl;
+/*
             else if get$char = '@' then
                 token$id = tok$at;
             else if get$char = '_' then
                 token$id = tok$underscore;
+*/
             else
                 token$id = tok$unknown;
             call next$char;
@@ -245,7 +249,7 @@ $include (cons.plm)
         end;
         if input$end then
             token$id = tok$eof;
-        else if get$char = 27h then    /* the quote character is 27h */
+        else if get$char = 27h then
             call read$string;
         else if dec$char(get$char) then
             call read$number;
@@ -314,13 +318,15 @@ $include (cons.plm)
         do;
             call print$string(.('IDENTIFIER:', 0));
             call print$string(token$str);
+            return;
         end;
-        else if token$id = tok$number then
+        if token$id = tok$number then
         do;
             call print$string(.('NUMBER:', 0));
             call print$number(token$value);
+            return;
         end;
-        else if token$id = tok$string then
+        if token$id = tok$string then
         do;
             call print$string(.('STRING: [', 0));
             call print$string(token$str);
