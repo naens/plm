@@ -1,0 +1,88 @@
+#+TITLE: readgen
+#+SUBTITLE: Read source code and generate code
+
+* Description
+  This project is still very early in development.  The goal is to write a
+  parser and a code generator for the PL/M programming language.
+
+  I would like to make it compatible with both CP/M 2.2 and CCP/M-86 3.1 because
+  they lack a good enough PL/M compiler.
+
+  For now I use the PLMX compiler but perhaps will continue with Intel PL/M-80.
+  It had some weird problems with jumping to the right location at the beginning
+  of the execution.  So I think when it will be solved I will continue with
+  Intel PL/M-80.
+
+* Goals
+  There are several goal for this project:
+  * To have an open source and maintained compiler for the PL/M progamming
+    language that works on CP/M 2.2, CCP/M-86 3.1, DOS, and Linux.
+  * Another goal is to adapt and be able to compile CCP/M-86 using only itself
+    as the operating system.  And then, perhaps to port it to 386, 486, and
+    perhaps other architectures.
+
+* Features
+** Language
+   As for the language, I'd like to make it compatible with PL/M-86 as much as
+   possible and totally compatible with PL/M-80.  I will also try to replicate
+   its code generation.  But at first it will be without any optimization.  Then
+   when it will be more mature, I will add some which were used in the original
+   compilers.
+
+** Targets
+   As for the targets, I will make it compile to different targets.  It's
+   important to be able to generate compilers to targets based on the compilation
+   options.
+
+   Of course the priority targets for me will be Z80 and 8086 assembly
+   languages.  I'm not sure it's worth compiling directly to machine code, so for
+   now for simplicity these will be the targets.
+
+   If it will support multiple targets, it wouldn't be difficult to add other
+   targets, for example LLVM ir, so now it would suddenly run on Linux!  I would
+   be great, wouldn't it?
+
+** Development environment
+   The Operating System I'm using for the development is CP/M on z80pack.  I'm
+   using PLMX, Microsoft m80, and DRI LINK.  Also all the PL/M code that I
+   write, I write in ~ED.COM~ text editor.  I just find it more interesting, a
+   more genuine experience: I think it makes me think about the code in a more
+   organized way.
+
+** How to compile
+   I have the PLMX binaries on the ~d:~ drive and the source code is on th ~j:~
+   drive.  But I don't think there are any mantions of ~j:~ anywhere in the
+   code, but it's important that the ~SUBMIT~ make files refer to the ~d:~
+   drive.
+
+   The PLMX compilers can compile executable and library modules.  It can also
+   just check that the program is syntactically correct and can be compiled.  So
+   I have several ~SUB~ files for different cases:
+   * ~chk.sub~ takes the name of a file and checks it,
+   * ~mk.sub~ makes a small standalone executable program,
+   * ~lib.sub~ compiles a library file,
+   * ~make.sub~ is the main file for the project: it compiles all the modules of
+     the project.
+
+  To run a ~SUB~ file you just type like this:
+  * ~j:>submit make~ in order to run ~make.sub~, or
+  * ~j:>submit mk hello~ in order to compile a standalone ~hello.plm~ program.
+
+  I use the standart PLMX library, but I try to use it as little as possible
+  with the intention to completely substitute it with assembly files.
+
+  Actually it was the initial goal of the /ksi/ project, another of my
+  repositories, but I didn't have time to work on it, so it's beyond the state
+  of current development.  But I think I will use some parts of it for the
+  CCP/M-86 version.  Perhaps it will also run on 8086 Minix, who knows...
+
+* Contribute
+  I understand that it's too early for people to want to contribute, but I'm
+  open.  You can use github for it.  If I find that there are more people than
+  just me, I might create some kind of chat or mail channel for the project.
+
+* License
+  I use GPLv3 for this project because I believe that code should be available
+  and when the author is not afraid to show the code it means that he knows what
+  he wanted to achieve writing this program, is not making anything insencere
+  and is proud of his code.
