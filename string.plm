@@ -1,4 +1,4 @@
-/****m* plm/strings
+/****h* plm/strings
  *
  * NAME
  *   Strings
@@ -11,8 +11,20 @@
 
 /****f* strings/string$equal
  *
- * FUNCTION
- *   Return a boolean telling whether two strings are equal.
+ * NAME
+ *   string$equal -- tell if two strings are equal
+ *
+ * SYNOPSIS
+ *   string$equal(p$str1, p$str2)
+ *
+ * DESCRIPTION
+ *   Compares two null-terminated strings and tells if they are equal are not.
+ *   Both arguments p$str1 and p$str2 are pointers to the first character
+ *   of the respective string.  Any of these strings can be empty, and
+ *   should be null-terminated.
+ *
+ * RETURN VALUE
+ *   Returns the boolean value true if strings are equal and false otherwise.
  *
  ******
  */
