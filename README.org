@@ -13,6 +13,13 @@
   of the execution.  So I think when it will be solved I will continue with
   Intel PL/M-80.
 
+* Documentation
+  There documentation generated from the source code will be stored here:
+  [[https://naens.github.io/plm/][https://naens.github.io/plm/]].
+
+  It's still a work in progress, so for the moment it will be rather empty.
+
+
 * Goals
   There are several goal for this project:
   * To have an open source and maintained compiler for the PL/M progamming
