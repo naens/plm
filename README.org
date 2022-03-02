@@ -1,4 +1,4 @@
-#+TITLE: readgen
+#+TITLE: A PL/M Project
 #+SUBTITLE: Read source code and generate code
 
 * Description
