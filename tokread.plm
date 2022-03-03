@@ -1,3 +1,44 @@
+/****h* plm/tokread
+ *
+ * NAME
+ *   tokread -- Tokenizer and Reader module
+ *
+ * DESCRIPTION
+ *   The tokread module is responsible for reading from a source file and to
+ *   convert source code to tokens.  Tokens are items that correspond to units
+ *   of code in the source file.  The different kinds of tokens are identified
+ *   by the token identifier and for some kinds of tokens it also has data,
+ *   which is either a number of a string.  Many tokens do not have additional
+ *   information.
+ *
+ *   The Tokenizer and the Reader work together, and therefore have a common
+ *   interface.  The tokenizer, being of a higher level than the reader,
+ *   has the majority of the interface functions (read a token, go to next,
+ *   and so on).  The only way the user should interact with the reader is when
+ *   setting the source.  Duting the normal execution, the reader reads from
+ *   source files which are given to the reader in the form of the filename.
+ *   For debug purposes, it's also possible to read from a string.
+ *
+ *   This is how the tokread module works:
+ *   * the user initializes the reader by setting the filename of the source
+ *     file,
+ *   * then to read one token the user calls get$token, which returns the
+ *     identifier of the token read.  On end of input it returns the tok$eof
+ *     token, which is consistent with how parsers are usually described in
+ *     literature.
+ *   * For additional data from the token the user calls tok$val in the case
+ *     of a numeric value (typically a number literal).  And when the token
+ *     is of a type that contains a string (identifiers and string literals),
+ *     the pointer to the string is returned by calling the tok$str function.
+ *     Both the number and the string values are temporary, so if the user
+ *     intends to keep them for later use, he has to make a copy of them.
+ *   * When the user has finished using the token and wants to move to the next
+ *     one, he calls the tok$next function.  This function does not return
+ *     anything as its only purpose is to advance to the next token.  To check
+ *     the end of input condition and the token, get$token is used.
+ *
+ ******/
+
 tokread:
 do;
 
@@ -257,7 +298,7 @@ $include (cons.plm)
         end;
     end read$char;
 
-    read$token: procedure public;
+    tok$next: procedure public;
         call skip$spaces;    /* skip spaces before reading the next token */
 
         /* Skip all comments. */
@@ -275,11 +316,11 @@ $include (cons.plm)
             call read$word;
         else
             call read$char;
-    end read$token;
+    end tok$next;
 
     get$token: procedure byte public;
         if not token$ready then
-            call read$token;
+            call tok$next;
         return token$id;
     end get$token;
 

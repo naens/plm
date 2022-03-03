@@ -19,8 +19,8 @@ $include (string.plm)
     pr$tok: procedure external;
     end pr$tok;
 
-    read$token: procedure external;
-    end read$token;
+    tok$next: procedure external;
+    end tok$next;
 
 
     /* MAIN PROGRAM */
@@ -43,7 +43,7 @@ $include (string.plm)
     do while i < 10 and get$token <> tok$eof;
         call pr$tok;
         call new$line;
-        call read$token;
+        call tok$next;
         i = i + 1;
     end;
 exit:
