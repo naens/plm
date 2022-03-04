@@ -26,10 +26,10 @@
  *     identifier of the token read.  On end of input it returns the tok$eof
  *     token, which is consistent with how parsers are usually described in
  *     literature.
- *   * For additional data from the token the user calls tok$val in the case
- *     of a numeric value (typically a number literal).  And when the token
+ *   * For additional data from the token, the value is stored in tkn$val
+ *     if it's a token with a numeric value. And when the token
  *     is of a type that contains a string (identifiers and string literals),
- *     the pointer to the string is returned by calling the tok$str function.
+ *     the pointer to the string is stored in tkn$str external variable
  *     Both the number and the string values are temporary, so if the user
  *     intends to keep them for later use, he has to make a copy of them.
  *   * When the user has finished using the token and wants to move to the next
@@ -116,10 +116,10 @@ $include (cons.plm)
 
     /* TOKENIZER */
     /* tokenizer variables */
-    declare token$ready boolean initial (false);
-    declare token$id byte;
-    declare token$value uint;
-    declare token$str pointer;
+    declare tkn$rd boolean initial (false);
+    declare tkn$id byte;
+    declare tkn$val uint public;
+    declare tkn$str pointer public;
     declare tbuf$len literally '80h';
     declare tok$buf (tbuf$len) byte;
 
@@ -181,17 +181,17 @@ $include (cons.plm)
             call next$char;
     end skip$comment;
 
-    /* check if token$str is a keyword, and if so return it,
+    /* check if tkn$str is a keyword, and if so return it,
        otherwise return tok$ident
     */
     str$tok$id: procedure byte;
-        if string$equal(token$str, .('DECLARE', 0)) then
+        if string$equal(tkn$str, .('DECLARE', 0)) then
             return tok$declare;
-        else if string$equal(token$str, .('BYTE', 0)) then
+        else if string$equal(tkn$str, .('BYTE', 0)) then
             return tok$byte;
-        else if string$equal(token$str, .('DO', 0)) then
+        else if string$equal(tkn$str, .('DO', 0)) then
             return tok$do;
-        else if string$equal(token$str, .('END', 0)) then
+        else if string$equal(tkn$str, .('END', 0)) then
             return tok$end;
         else /***/
             return tok$ident;
@@ -202,19 +202,19 @@ $include (cons.plm)
         declare buffer$ptr pointer;
         declare buffer$chr based buffer$ptr byte;
         buffer$ptr = .tok$buf;
-        token$str = buffer$ptr;
+        tkn$str = buffer$ptr;
         call next$char;    /* skip the first quote character */
         /* TODO: implement two quote characters as quote character in string */
         /* check buffer length before writing */
         do while not input$end and get$char <> quote
-                    and buffer$ptr - token$str < tbuf$len - 1;
+                    and buffer$ptr - tkn$str < tbuf$len - 1;
             buffer$chr = get$char;
             buffer$ptr = buffer$ptr + 1;
             call next$char;
         end;
         buffer$chr = 0;
-        token$ready = true;
-        token$id = tok$string;
+        tkn$rd = true;
+        tkn$id = tok$string;
         if not input$end then
             call next$char;
     end read$string;
@@ -224,17 +224,17 @@ $include (cons.plm)
         declare buffer$ptr pointer;
         declare buffer$chr based buffer$ptr byte;
         buffer$ptr = .tok$buf;
-        token$str = buffer$ptr;
+        tkn$str = buffer$ptr;
         /* check buffer length before writing */
         do while not input$end and word$char(get$char)
-                    and buffer$ptr - token$str < tbuf$len - 1;
+                    and buffer$ptr - tkn$str < tbuf$len - 1;
             buffer$chr = get$char;
             buffer$ptr = buffer$ptr + 1;
             call next$char;
         end;
         buffer$chr = 0;
-        token$ready = true;
-        token$id = str$tok$id;
+        tkn$rd = true;
+        tkn$id = str$tok$id;
     end read$word;
 
     /* read a number from the input */
@@ -245,9 +245,9 @@ $include (cons.plm)
             n = n * 10 + get$char - '0';
             call next$char;
         end;
-        token$id = tok$number;
-        token$value = n;
-        token$ready = true;
+        tkn$id = tok$number;
+        tkn$val = n;
+        tkn$rd = true;
     end read$number;
 
     read$char: procedure;
@@ -260,41 +260,41 @@ $include (cons.plm)
 */
         if not input$end then
         do;
-            token$value = get$char;
+            tkn$val = get$char;
             if get$char = '+' then
-                token$id = tok$plus;
+                tkn$id = tok$plus;
             else if get$char = '-' then
-                token$id = tok$minus;
+                tkn$id = tok$minus;
             else if get$char = '*' then
-                token$id = tok$star;
+                tkn$id = tok$star;
             else if get$char = '/' then
-                token$id = tok$slash;
+                tkn$id = tok$slash;
 /*
             else if get$char = '<' then
-                token$id = tok$lower;
+                tkn$id = tok$lower;
             else if get$char = '>' then
-                token$id = tok$greater;
+                tkn$id = tok$greater;
             else if get$char = '=' then
-                token$id = tok$equals;
+                tkn$id = tok$equals;
             else if get$char = ':' then
-                token$id = tok$colon;
+                tkn$id = tok$colon;
             else if get$char = ';' then
-                token$id = tok$semicolon;
+                tkn$id = tok$semicolon;
 */
             else if get$char = '(' then
-                token$id = tok$par$op;
+                tkn$id = tok$par$op;
             else if get$char = ')' then
-                token$id = tok$par$cl;
+                tkn$id = tok$par$cl;
 /*
             else if get$char = '@' then
-                token$id = tok$at;
+                tkn$id = tok$at;
             else if get$char = '_' then
-                token$id = tok$underscore;
+                tkn$id = tok$underscore;
 */
             else
-                token$id = tok$unknown;
+                tkn$id = tok$unknown;
             call next$char;
-            token$ready = true;
+            tkn$rd = true;
         end;
     end read$char;
 
@@ -307,7 +307,7 @@ $include (cons.plm)
             call skip$spaces;
         end;
         if input$end then
-            token$id = tok$eof;
+            tkn$id = tok$eof;
         else if get$char = quote then
             call read$string;
         else if dec$char(get$char) then
@@ -319,16 +319,18 @@ $include (cons.plm)
     end tok$next;
 
     get$token: procedure byte public;
-        if not token$ready then
+        if not tkn$rd then
             call tok$next;
-        return token$id;
+        return tkn$id;
     end get$token;
+
+
 
 
     pr$chr$tok: procedure (tok$id);
         declare tok$id byte;
         call print$string(.('CHR[', 0));
-        call print$char(low(token$value));
+        call print$char(low(tkn$val));
         call print$char(']');
 /*
         if tok$id = tok$plus then
@@ -373,34 +375,34 @@ $include (cons.plm)
     /* print token without new line */
     pr$tok: procedure public;
         call print$string(.('TOKEN: ', 0));
-        if token$id = tok$ident then
+        if tkn$id = tok$ident then
         do;
             call print$string(.('IDENTIFIER:', 0));
-            call print$string(token$str);
+            call print$string(tkn$str);
             return;
         end;
-        if token$id = tok$number then
+        if tkn$id = tok$number then
         do;
             call print$string(.('NUMBER:', 0));
-            call print$number(token$value);
+            call print$number(tkn$val);
             return;
         end;
-        if token$id = tok$string then
+        if tkn$id = tok$string then
         do;
             call print$string(.('STRING: [', 0));
-            call print$string(token$str);
+            call print$string(tkn$str);
             call print$char(']');
         end;
-        else if token$id = tok$eof then
+        else if tkn$id = tok$eof then
             call print$string(.('END OF INPUT', 0));
-        else if is$character(token$id) then
-            call pr$chr$tok(token$id);
-        else if is$keyword(token$id) then
-            call pr$kw$tok(token$id);
+        else if is$character(tkn$id) then
+            call pr$chr$tok(tkn$id);
+        else if is$keyword(tkn$id) then
+            call pr$kw$tok(tkn$id);
         else /***/
         do;
             call print$string(.('UNKNOWN TOKEN:', 0));
-            call print$number(token$id);
+            call print$number(tkn$id);
         end;
     end pr$tok;
 
