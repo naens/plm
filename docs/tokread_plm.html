@@ -58,10 +58,10 @@
      identifier of the token read.  On end of input it returns the tok$eof
      token, which is consistent with how parsers are usually described in
      literature.
-   * For additional data from the token the user calls tok$val in the case
-     of a numeric value (typically a number literal).  And when the token
+   * For additional data from the token, the value is stored in tkn$val
+     if it's a token with a numeric value. And when the token
      is of a type that contains a string (identifiers and string literals),
-     the pointer to the string is returned by calling the tok$str function.
+     the pointer to the string is stored in tkn$str external variable
      Both the number and the string values are temporary, so if the user
      intends to keep them for later use, he has to make a copy of them.
    * When the user has finished using the token and wants to move to the next
@@ -72,7 +72,7 @@
 
 </div> <!-- content -->
 <div id="footer">
-<p>Generated from ./tokread.plm with <a href="http://www.xs4all.nl/~rfsber/Robo/robodoc.html">ROBODoc</a> V4.99.44 on 2022-03-03 14:34:15</p>
+<p>Generated from ./tokread.plm with <a href="http://www.xs4all.nl/~rfsber/Robo/robodoc.html">ROBODoc</a> V4.99.44 on 2022-03-05 18:20:45</p>
 </div> <!-- footer -->
 </body>
 </html>
