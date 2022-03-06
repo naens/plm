@@ -37,7 +37,8 @@
  *     anything as its only purpose is to advance to the next token.  To check
  *     the end of input condition and the token, get$token is used.
  *
- ******/
+ ******
+ */
 
 tokread:
 do;
@@ -56,6 +57,22 @@ $include (cons.plm)
     declare reader$prev byte initial (0);
     declare reader$saved byte initial (0);
 
+/****f* tokread/reader$set$ptr
+ *
+ * NAME
+ *   reader$set$ptr -- set reader string
+ *
+ * SYNOPSIS
+ *   call reader$set$ptr(ptr);
+ *
+ * DESCRIPTION
+ *   This is a procedure used to initialize a string that the reader will read.
+ *   The ptr parameter is a pointer to a string that the reader should use.
+ *   This procedure is only for debugging purposes and will perhaps be repaced
+ *   or removed in later versions.
+ *
+ ******
+ */
     reader$set$ptr: procedure (ptr) public;
         declare ptr pointer;
         reader$ptr = ptr;
@@ -298,6 +315,20 @@ $include (cons.plm)
         end;
     end read$char;
 
+/****f*
+ *
+ * NAME
+ *   tok$next -- go to next token
+ *
+ * SYNOPSIS
+ *   call tok$next;
+ *
+ * DESCRIPTION
+ *   This procedure advances the current token to the next one if not at the
+ *   end of input.  Otherwise it does nothing.
+ *
+ ******
+ */
     tok$next: procedure public;
         call skip$spaces;    /* skip spaces before reading the next token */
 
@@ -318,6 +349,22 @@ $include (cons.plm)
             call read$char;
     end tok$next;
 
+/****f*
+ *
+ * NAME
+ *   get$token -- get the id of the current token
+ *
+ * SYNOPSIS
+ *   get$token
+ *
+ * DESCRIPTION
+ *   Returns the id of the current token.  Should be called after the reader
+ *   is initialized.  In this case it returns the current value without
+ *   advancing the cursor.  When the end of input is reached, a special token
+ *   with the id tok$eof is returned.
+ *
+ ******
+ */
     get$token: procedure byte public;
         if not tkn$rd then
             call tok$next;
@@ -373,6 +420,20 @@ $include (cons.plm)
     end pr$kw$tok;
 
     /* print token without new line */
+/****f*
+ *
+ * NAME
+ *   pr$tok -- print token
+ *
+ * SYNOPSIS
+ *   call pr$tok;
+ *
+ * DESCRIPTION
+ *   This procedure prints the current token in a text representation without
+ *   any newline characters.
+ *
+ ******
+ */
     pr$tok: procedure public;
         call print$string(.('TOKEN: ', 0));
         if tkn$id = tok$ident then
