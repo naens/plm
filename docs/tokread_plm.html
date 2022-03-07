@@ -26,6 +26,9 @@
 <h3>TABLE OF CONTENTS</h3>
 <ul>
 <li>1. <a href="#robo1">plm/tokread</a></li>
+<ul>
+<li>1.1. <a href="#robo3">tokread/reader$set$ptr</a></li>
+</ul>
 </ul>
 <hr />
 <a name="plm2ftokread"></a>
@@ -70,9 +73,27 @@
      the end of input condition and the token, get$token is used.
 </pre>
 
+<hr />
+<a name="tokread2freader24set24ptr"></a>
+<a name="robo3"></a><h2>tokread/reader$set$ptr [ Functions ]</h2>
+
+<p>[ <a href="#robo_top_of_doc">Top</a> ] [ <a href="#robo1">tokread</a> ] [ <a href="./robo_functions.html#robo_top_of_doc">Functions</a> ]</p>
+<p class="item_name">NAME</p>
+<pre>   <strong>reader$set$ptr</strong> -- set reader string
+</pre>
+<p class="item_name">SYNOPSIS</p>
+<pre>   call reader$set$ptr(ptr);
+</pre>
+<p class="item_name">DESCRIPTION</p>
+<pre>   This is a procedure used to initialize a string that the reader will read.
+   The ptr parameter is a pointer to a string that the reader should use.
+   This procedure is only for debugging purposes and will perhaps be repaced
+   or removed in later versions.
+</pre>
+
 </div> <!-- content -->
 <div id="footer">
-<p>Generated from ./tokread.plm with <a href="http://www.xs4all.nl/~rfsber/Robo/robodoc.html">ROBODoc</a> V4.99.44 on 2022-03-05 18:20:45</p>
+<p>Generated from ./tokread.plm with <a href="http://www.xs4all.nl/~rfsber/Robo/robodoc.html">ROBODoc</a> V4.99.44 on 2022-03-07 13:39:49</p>
 </div> <!-- footer -->
 </body>
 </html>
