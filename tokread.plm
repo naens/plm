@@ -140,9 +140,11 @@ $include (cons.plm)
     declare tbuf$len literally '80h';
     declare tok$buf (tbuf$len) byte;
 
+    /* check whether it's a special character */
     is$character: procedure (tok$id) boolean;
         declare tok$id byte;
-        return tok$id >= 50 and tok$id <= 62;
+        return (tok$id >= 40 and tok$id <= 47)
+            or  (tok$id >= 58 and tok$id <= 64);
     end is$character;
 
     is$keyword: procedure (tok$id) boolean;
@@ -268,54 +270,17 @@ $include (cons.plm)
     end read$number;
 
     read$char: procedure;
-/*
-        call print$string(.('[readchar:',0));
-        call print$char(reader$chr);
-        call print$char(':');
-        call print$number(reader$chr);
-        call print$char(']');
-*/
         if not input$end then
         do;
             tkn$val = get$char;
-            if get$char = '+' then
-                tkn$id = tok$plus;
-            else if get$char = '-' then
-                tkn$id = tok$minus;
-            else if get$char = '*' then
-                tkn$id = tok$star;
-            else if get$char = '/' then
-                tkn$id = tok$slash;
-/*
-            else if get$char = '<' then
-                tkn$id = tok$lower;
-            else if get$char = '>' then
-                tkn$id = tok$greater;
-            else if get$char = '=' then
-                tkn$id = tok$equals;
-            else if get$char = ':' then
-                tkn$id = tok$colon;
-            else if get$char = ';' then
-                tkn$id = tok$semicolon;
-*/
-            else if get$char = '(' then
-                tkn$id = tok$par$op;
-            else if get$char = ')' then
-                tkn$id = tok$par$cl;
-/*
-            else if get$char = '@' then
-                tkn$id = tok$at;
-            else if get$char = '_' then
-                tkn$id = tok$underscore;
-*/
-            else
-                tkn$id = tok$unknown;
+            /* for special characters, the ascii code serves as token id */
+            tkn$id = get$char;
             call next$char;
             tkn$rd = true;
         end;
     end read$char;
 
-/****f*
+/****f* tokread/tok$next
  *
  * NAME
  *   tok$next -- go to next token
@@ -349,7 +314,7 @@ $include (cons.plm)
             call read$char;
     end tok$next;
 
-/****f*
+/****f* tokread/get$token
  *
  * NAME
  *   get$token -- get the id of the current token
@@ -371,40 +336,11 @@ $include (cons.plm)
         return tkn$id;
     end get$token;
 
-
-
-
     pr$chr$tok: procedure (tok$id);
         declare tok$id byte;
         call print$string(.('CHR[', 0));
         call print$char(low(tkn$val));
         call print$char(']');
-/*
-        if tok$id = tok$plus then
-            call print$string(.('PLUS', 0));
-        else if tok$id = tok$minus then
-            call print$string(.('MINUS', 0));
-        else if tok$id = tok$star then
-            call print$string(.('STAR', 0));
-        else if tok$id = tok$slash then
-            call print$string(.('SLASH', 0));
-        else if tok$id = tok$lower then
-            call print$string(.('LOWER', 0));
-        else if tok$id = tok$greater then
-            call print$string(.('GREATER', 0));
-        else if tok$id = tok$colon then
-            call print$string(.('COLON', 0));
-        else if tok$id = tok$semicolon then
-            call print$string(.('SEMICOLON', 0));
-        else if tok$id = tok$par$op then
-            call print$string(.('PAR_OP', 0));
-        else if tok$id = tok$par$cl then
-            call print$string(.('PAR_CL', 0));
-        else if tok$id = tok$at then
-            call print$string(.('AT', 0));
-        else if tok$id = tok$underscore then
-            call print$string(.('UNDERSCORE', 0));
-*/
     end pr$chr$tok;
 
     pr$kw$tok: procedure (tok$id);
@@ -419,8 +355,7 @@ $include (cons.plm)
             call print$string(.('END', 0));
     end pr$kw$tok;
 
-    /* print token without new line */
-/****f*
+/****f* tokread/pr$tok
  *
  * NAME
  *   pr$tok -- print token

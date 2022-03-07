@@ -5,20 +5,19 @@
     declare tok$string literally '4';
     declare tok$unknown literally '0ffh';
 
-    /* special characters: in range [50..62] */
-    declare tok$plus literally '50';
-    declare tok$minus literally '51';
-    declare tok$star literally '52';
-    declare tok$slash literally '53';
-    declare tok$lower literally '54';
-    declare tok$greater literally '55';
-    declare tok$equals literally '56';
-    declare tok$colon literally '57';
-    declare tok$semicolon literally '58';
-    declare tok$par$op literally '59';
-    declare tok$par$cl literally '60';
-    declare tok$at literally '61';
-    declare tok$underscore literally '62';
+    /* special characters correspond to their ascii codes: 40..47, 58..64 */
+    declare tok$plus literally '''+''';
+    declare tok$minus literally '''-''';
+    declare tok$star literally '''*''';
+    declare tok$slash literally '''/''';
+    declare tok$lower literally '''<''';
+    declare tok$greater literally '''>''';
+    declare tok$equals literally '''=''';
+    declare tok$colon literally ''':''';
+    declare tok$semicolon literally ''';''';
+    declare tok$par$op literally '''(''';
+    declare tok$par$cl literally ''')''';
+    declare tok$at literally '''@''';
 
     /* keywords: in range [100..150] */
     declare tok$declare literally '100';
