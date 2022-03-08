@@ -47,7 +47,7 @@ $include (d:iocld.src)
 
 $include (globlit.inc)
 $include (toklit.inc)
-$include (string.plm)
+$include (fdecl.inc)
 $include (cons.plm)
 
     /* READER */
@@ -149,7 +149,7 @@ $include (cons.plm)
 
     is$keyword: procedure (tok$id) boolean;
         declare tok$id byte;
-        return tok$id >= 100 and tok$id <= 150;
+        return tok$id >= 200 and tok$id <= 250;
     end is$keyword;
 
 
@@ -160,14 +160,21 @@ $include (cons.plm)
             return true;
         if chr >= 'A' and chr <= 'Z' then
             return true;
-/*
         if chr >= '0' and chr <= '9' then
             return true;
         if chr = '$' or chr = '_' then
             return true;
-*/
         return false;
     end word$char;
+
+    word$first: procedure (chr) boolean;
+        declare chr byte;
+        if chr >= 'a' and chr <= 'z' then
+            return true;
+        if chr >= 'A' and chr <= 'Z' then
+            return true;
+        return false;
+    end word$first;
 
     /* check whether the character is a decimal digit */
     dec$char: procedure (chr) boolean;
@@ -247,8 +254,11 @@ $include (cons.plm)
         /* check buffer length before writing */
         do while not input$end and word$char(get$char)
                     and buffer$ptr - tkn$str < tbuf$len - 1;
-            buffer$chr = get$char;
-            buffer$ptr = buffer$ptr + 1;
+            if get$char <> '$' then
+            do;
+                buffer$chr = get$char;
+                buffer$ptr = buffer$ptr + 1;
+            end;
             call next$char;
         end;
         buffer$chr = 0;
@@ -308,7 +318,7 @@ $include (cons.plm)
             call read$string;
         else if dec$char(get$char) then
             call read$number;
-        else if word$char(get$char) then
+        else if word$first(get$char) then
             call read$word;
         else
             call read$char;

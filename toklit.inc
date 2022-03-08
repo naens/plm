@@ -19,9 +19,9 @@
     declare tok$par$cl literally ''')''';
     declare tok$at literally '''@''';
 
-    /* keywords: in range [100..150] */
-    declare tok$declare literally '100';
-    declare tok$byte literally '110';
-    declare tok$do literally '120';
-    declare tok$end literally '130';
+    /* keywords: in range [200..250] */
+    declare tok$declare literally '200';
+    declare tok$byte literally '220';
+    declare tok$do literally '230';
+    declare tok$end literally '240';
 

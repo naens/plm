@@ -9,6 +9,12 @@
  ******
  */
 
+str:
+do;
+
+$include (globlit.inc)
+
+
 /****f* strings/string$equal
  *
  * NAME
@@ -28,7 +34,7 @@
  *
  ******
  */
-    string$equal: procedure (p$str1, p$str2) boolean;
+    string$equal: procedure (p$str1, p$str2) boolean public;
         declare (p$str1, p$str2) pointer;
         declare str1 based p$str1 byte;
         declare str2 based p$str2 byte;
@@ -38,4 +44,29 @@
         end;
         return str1 = 0 and str2 = 0;
     end string$equal;
+
+
+/****f* strings/chr$upper
+ *
+ * NAME
+ *   chr$upper -- convert a character to uppercase
+ *
+ * SYNOPSIS
+ *   chr$upper(c)
+ *
+ * DESCRIPTION
+ *   This function converts one character to uppercase.
+ *
+ ******
+ */
+    chr$upper: procedure (c) byte public;
+        declare c byte;
+        if c >= 'a' and c <= 'z' then
+            return c and 06fh;
+        else
+            return c;
+    end chr$upper;
+
+
+end str;
 
