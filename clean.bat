@@ -1,0 +1,10 @@
+@echo off
+del *.bak
+del *.com
+del *.sym
+del *.rel
+del *.z80
+del *.mac
+del *.ram
+del *.rom
+del *.lst

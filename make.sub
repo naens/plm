@@ -3,9 +3,11 @@ era *.com
 era *.sym
 era *.rel
 d:plmx string.plm; C+ M- L-
+d:plmx cons.plm; C+ M+ L-
 d:plmx readgen.plm; C+ M+ L-
 d:plmx tokread.plm; C+ M- L-
 m80 =string
+m80 =cons
 m80 =readgen
 m80 =tokread
-link readgen,string,tokread,d:iolib[s],d:rlib[s]
+link readgen,string,cons,tokread,d:iolib[s],d:rlib[s]

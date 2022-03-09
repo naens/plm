@@ -1,7 +1,0 @@
-era *.bak
-era *.com
-era *.sym
-era *.rel
-era *.z80
-era *.ram
-era *.rom

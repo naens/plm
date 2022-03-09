@@ -1,5 +1,4 @@
 /* types */
-declare pointer literally 'address';
 declare uint literally 'address';
 declare boolean literally 'byte';
 declare true literally '1';
