@@ -47,8 +47,7 @@ $include (d:iocld.src)
 
 $include (globlit.inc)
 $include (toklit.inc)
-$include (fdecl.inc)
-$include (cons.plm)
+$include (extdcl.inc)
 
     /* READER */
     /* reader variables */

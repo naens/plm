@@ -5,7 +5,7 @@ $include (d:iocld.src)
 
 $include (globlit.inc)
 $include (toklit.inc)
-$include (cons.plm)
+$include (extdcl.inc)
 
 
     reader$set$ptr: procedure (ptr) external;

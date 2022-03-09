@@ -1,5 +1,23 @@
-    /* CONSOLE IN/OUT */
-    print$string: procedure (p$str);
+/****h* plm/cons
+ *
+ * NAME
+ *   cons -- console input and output module
+ *
+ * DESCRIPTION
+ *   This modules reads and writes data from and to the console.
+ *
+ ******
+ */
+
+cons:
+do;
+
+$include (d:iocld.src)
+
+$include (globlit.inc)
+
+
+    print$string: procedure (p$str) public;
         declare p$str pointer;
         declare chr based p$str byte;
         do while chr <> 0;
@@ -8,23 +26,23 @@
         end;
     end print$string;
 
-    print$char: procedure (chr);
+    print$char: procedure (chr) public;
         declare chr byte;
         call wr$con(chr);
     end print$char;
 
-    new$line: procedure;
+    new$line: procedure public;
         call print$char(cr);
         call print$char(lf);
     end new$line;
 
-    print$line: procedure (p$str);
+    print$line: procedure (p$str) public;
         declare p$str pointer;
         call print$string(p$str);
         call new$line;
     end print$line;
 
-    print$number: procedure (n);
+    print$number: procedure (n) public;
         declare n uint;
         declare buf (10) byte;
         declare i uint;
@@ -43,3 +61,4 @@
     end print$number;
 
 
+end;
