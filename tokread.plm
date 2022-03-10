@@ -43,8 +43,6 @@
 tokread:
 do;
 
-$include (d:iocld.src)
-
 $include (globlit.inc)
 $include (toklit.inc)
 $include (extdcl.inc)
@@ -52,7 +50,8 @@ $include (extdcl.inc)
     /* READER */
     /* reader variables */
     declare reader$ptr pointer;   /* pointer to the current string */
-    declare reader$chr based reader$ptr byte;
+    declare reader$chr based reader$ptr (*) byte;
+    declare reader$idx uint;
     declare reader$prev byte initial (0);
     declare reader$saved byte initial (0);
 
@@ -78,12 +77,12 @@ $include (extdcl.inc)
     end reader$set$ptr;
 
     input$end: procedure boolean;
-        return reader$chr = 0;
+        return reader$chr(reader$idx) = 0;
     end input$end;
 
     get$char: procedure byte;
         if reader$saved = 0 then
-            return reader$chr;
+            return reader$chr(reader$idx);
         else
             return reader$saved;
     end get$char;
@@ -91,8 +90,8 @@ $include (extdcl.inc)
     next$char: procedure;
         if reader$saved = 0 then
         do;
-            reader$prev = reader$chr;
-            reader$ptr = reader$ptr + 1;
+            reader$prev = reader$chr(reader$idx);
+            reader$idx = reader$idx + 1;
         end;
         else
         do;
@@ -210,13 +209,13 @@ $include (extdcl.inc)
        otherwise return tok$ident
     */
     str$tok$id: procedure byte;
-        if string$equal(tkn$str, .('DECLARE', 0)) then
+        if string$equal(tkn$str, @('DECLARE', 0)) then
             return tok$declare;
-        else if string$equal(tkn$str, .('BYTE', 0)) then
+        else if string$equal(tkn$str, @('BYTE', 0)) then
             return tok$byte;
-        else if string$equal(tkn$str, .('DO', 0)) then
+        else if string$equal(tkn$str, @('DO', 0)) then
             return tok$do;
-        else if string$equal(tkn$str, .('END', 0)) then
+        else if string$equal(tkn$str, @('END', 0)) then
             return tok$end;
         else /***/
             return tok$ident;
@@ -225,19 +224,20 @@ $include (extdcl.inc)
     /* read a string literal together with the terminating quote */
     read$string: procedure;
         declare buffer$ptr pointer;
-        declare buffer$chr based buffer$ptr byte;
-        buffer$ptr = .tok$buf;
+        declare buffer$chr based buffer$ptr (*) byte;
+        declare i uint;
+        i = 0;
+        buffer$ptr = @tok$buf;
         tkn$str = buffer$ptr;
         call next$char;    /* skip the first quote character */
         /* TODO: implement two quote characters as quote character in string */
         /* check buffer length before writing */
-        do while not input$end and get$char <> quote
-                    and buffer$ptr - tkn$str < tbuf$len - 1;
-            buffer$chr = get$char;
-            buffer$ptr = buffer$ptr + 1;
+        do while not input$end and get$char <> quote and i < tbuf$len - 1;
+            buffer$chr(i) = get$char;
+            i = i + 1;
             call next$char;
         end;
-        buffer$chr = 0;
+        buffer$chr(i) = 0;
         tkn$rd = true;
         tkn$id = tok$string;
         if not input$end then
@@ -247,20 +247,22 @@ $include (extdcl.inc)
     /* read a string that may be an identifier or a keyword */
     read$word: procedure;
         declare buffer$ptr pointer;
-        declare buffer$chr based buffer$ptr byte;
-        buffer$ptr = .tok$buf;
+        declare buffer$chr based buffer$ptr (*) byte;
+        declare i uint;
+
+        i = 0;
+        buffer$ptr = @tok$buf;
         tkn$str = buffer$ptr;
         /* check buffer length before writing */
-        do while not input$end and word$char(get$char)
-                    and buffer$ptr - tkn$str < tbuf$len - 1;
+        do while not input$end and word$char(get$char) and i < tbuf$len - 1;
             if get$char <> '$' then
             do;
-                buffer$chr = get$char;
-                buffer$ptr = buffer$ptr + 1;
+                buffer$chr(i) = get$char;
+                i = i + 1;
             end;
             call next$char;
         end;
-        buffer$chr = 0;
+        buffer$chr(i) = 0;
         tkn$rd = true;
         tkn$id = str$tok$id;
     end read$word;
@@ -347,7 +349,7 @@ $include (extdcl.inc)
 
     pr$chr$tok: procedure (tok$id);
         declare tok$id byte;
-        call print$string(.('CHR[', 0));
+        call print$string(@('CHR[', 0));
         call print$char(low(tkn$val));
         call print$char(']');
     end pr$chr$tok;
@@ -355,13 +357,13 @@ $include (extdcl.inc)
     pr$kw$tok: procedure (tok$id);
         declare tok$id byte;
         if tok$id = tok$declare then
-            call print$string(.('DECLARE', 0));
+            call print$string(@('DECLARE', 0));
         else if tok$id = tok$byte then
-            call print$string(.('BYTE', 0));
+            call print$string(@('BYTE', 0));
         else if tok$id = tok$do then
-            call print$string(.('DO', 0));
+            call print$string(@('DO', 0));
         else if tok$id = tok$end then
-            call print$string(.('END', 0));
+            call print$string(@('END', 0));
     end pr$kw$tok;
 
 /****f* tokread/pr$tok
@@ -379,34 +381,34 @@ $include (extdcl.inc)
  ******
  */
     pr$tok: procedure public;
-        call print$string(.('TOKEN: ', 0));
+        call print$string(@('TOKEN: ', 0));
         if tkn$id = tok$ident then
         do;
-            call print$string(.('IDENTIFIER:', 0));
+            call print$string(@('IDENTIFIER:', 0));
             call print$string(tkn$str);
             return;
         end;
         if tkn$id = tok$number then
         do;
-            call print$string(.('NUMBER:', 0));
+            call print$string(@('NUMBER:', 0));
             call print$number(tkn$val);
             return;
         end;
         if tkn$id = tok$string then
         do;
-            call print$string(.('STRING: [', 0));
+            call print$string(@('STRING: [', 0));
             call print$string(tkn$str);
             call print$char(']');
         end;
         else if tkn$id = tok$eof then
-            call print$string(.('END OF INPUT', 0));
+            call print$string(@('END OF INPUT', 0));
         else if is$character(tkn$id) then
             call pr$chr$tok(tkn$id);
         else if is$keyword(tkn$id) then
             call pr$kw$tok(tkn$id);
         else /***/
         do;
-            call print$string(.('UNKNOWN TOKEN:', 0));
+            call print$string(@('UNKNOWN TOKEN:', 0));
             call print$number(tkn$id);
         end;
     end pr$tok;
