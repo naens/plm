@@ -1,21 +1,21 @@
-/****h* plm/strings
+/****h* plm/string
  *
  * NAME
- *   Strings
+ *   String
  *
  * DESCRIPTION
- *   Subroutines to manipulate null-terminated strings
+ *   Subroutines to manipulate null-terminated string
  *
  ******
  */
 
-str:
+string:
 do;
 
 $include (globlit.inc)
 
 
-/****f* strings/string$equal
+/****f* string/string$equal
  *
  * NAME
  *   string$equal -- tell if two strings are equal
@@ -47,7 +47,7 @@ $include (globlit.inc)
     end string$equal;
 
 
-/****f* strings/chr$upper
+/****f* string/chr$upper
  *
  * NAME
  *   chr$upper -- convert a character to uppercase
@@ -69,5 +69,16 @@ $include (globlit.inc)
     end chr$upper;
 
 
-end str;
+end string;
 
+
+
+end string;
+
+ chr$upper;
+
+
+ chr$upper;
+
+
+end string;
