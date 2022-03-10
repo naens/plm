@@ -6,8 +6,12 @@
 *.com
 *.ram
 *.rom
+*.lst
+*.obj
 
 # backups
 *.bak
 *.$$$
 *~
+
+AUTOEXEC.Z80
