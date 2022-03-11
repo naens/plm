@@ -1,3 +1,8 @@
+/* dos library */
+$nolist
+$include (c:\intel\lib\doslibs.inc)
+$list
+
 /* types */
 declare uint literally 'address';
 declare boolean literally 'byte';
@@ -9,6 +14,7 @@ declare space literally '20h';
 declare tab literally '9h';
 declare lf literally '0ah';
 declare cr literally '0dh';
+declare eol literally '24h';
 declare quote literally '27h';
 
 /* memory locations */
