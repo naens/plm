@@ -9,19 +9,22 @@
  ******
  */
 
+$if not str$lib
+$set (str$lib)
+
 string:
 do;
 
-$include (globlit.inc)
+$include (glob.inc)
 
 
-/****f* string/string$equal
+/****f* string/string_equal
  *
  * NAME
- *   string$equal -- tell if two strings are equal
+ *   string_equal -- tell if two strings are equal
  *
  * SYNOPSIS
- *   string$equal(p$str1, p$str2)
+ *   string_equal(p$str1, p$str2)
  *
  * DESCRIPTION
  *   Compares two null-terminated strings and tells if they are equal are not.
@@ -34,51 +37,87 @@ $include (globlit.inc)
  *
  ******
  */
-    string$equal: procedure (p$str1, p$str2) boolean public;
-        declare (p$str1, p$str2) pointer;
-        declare str1 based p$str1 (*) byte;
-        declare str2 based p$str2 (*) byte;
-        declare i integer;
-        i = 0;
-        do while str1(i) <> 0 and str2(i) <> 0 and str1(i) = str2(i);
-            i = i + 1;
-        end;
-        return str1(i) = 0 and str2(i) = 0;
-    end string$equal;
+string_equal: procedure (p$str1, p$str2) boolean public;
+    declare (p$str1, p$str2) pointer;
+    declare str1 based p$str1 (*) byte;
+    declare str2 based p$str2 (*) byte;
+    declare i integer;
+    i = 0;
+    do while str1(i) <> 0 and str2(i) <> 0 and str1(i) = str2(i);
+        i = i + 1;
+    end;
+    return str1(i) = 0 and str2(i) = 0;
+end string_equal;
 
 
-/****f* string/chr$upper
+/****f* string/char_upper
  *
  * NAME
- *   chr$upper -- convert a character to uppercase
+ *   char_upper -- convert a character to uppercase
  *
  * SYNOPSIS
- *   chr$upper(c)
+ *   char_upper(c)
  *
  * DESCRIPTION
  *   This function converts one character to uppercase.
  *
  ******
  */
-    chr$upper: procedure (c) byte public;
-        declare c byte;
-        if c >= 'a' and c <= 'z' then
-            return c and 06fh;
-        else
-            return c;
-    end chr$upper;
+char_upper: procedure (c) byte public;
+    declare c byte;
+    if c >= 'a' and c <= 'z' then
+        return c and 06fh;
+    else
+        return c;
+end char_upper;
 
+
+
+parse$hexchar: procedure (b) integer;
+    declare b byte;
+    declare result integer;
+    if b >= 'A' and b <= 'F' then
+        result = int(b - 'A' + 10);
+    else if b >= 'a' and 'b' <= 'f' then
+        result = int(b - 'a' + 10);
+    else if b >= '0' and b <= '9' then
+        result = int(b - '0');
+    else
+        result = -1;
+    return result;
+end parse$hexchar;
+
+/****f* string/parse_hex
+ *
+ * NAME
+ *   parse_hex -- convert hexadecimal string to number
+ *
+ * SYNOPSIS
+ *   parse_hex(p$str)
+ *
+ * DESCRIPTION
+ *   Convert a string representation of a hexadecimal number into an unsigned
+ *   16-bit integer.  This function reads characters pointed by p$str and
+ *   stops when a character other than 0-9, a-f, A-F is encountered.
+ *   This function is case insensitive.
+ *
+ ******
+ */
+parse_hex: procedure (p$str) uint public;
+    declare p$str pointer;
+    declare str based p$str (*) byte;
+    declare i uint;
+    declare result uint;
+    declare n integer;
+    i = 0;
+    result = 0;
+    do while (n := parse$hexchar(str(i))) <> -1;
+        result = result * 16 + unsign(n);
+        i = i + 1;
+    end;
+    return result;
+end parse_hex;
 
 end string;
 
-
-
-end string;
-
- chr$upper;
-
-
- chr$upper;
-
-
-end string;
+$endif
