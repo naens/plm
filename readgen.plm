@@ -15,8 +15,8 @@ $include (extdcl.inc)
     get$token: procedure byte external;
     end get$token;
 
-    pr$tok: procedure external;
-    end pr$tok;
+    print$token: procedure external;
+    end print$token;
 
     tok$next: procedure external;
     end tok$next;
@@ -34,14 +34,14 @@ $include (extdcl.inc)
     tail$len = tail$chr;
     tail$ptr = tail$ptr + tail$len + 1;
     tail$chr = 0;
-    call print$string(.('string entered: {', 0));
-    call print$string(tail$start + 1);
-    call print$line(.('}', 0));
+    call print_string(.('string entered: {', 0));
+    call print_string(tail$start + 1);
+    call print_line(.('}', 0));
     call reader$set$ptr(tail$start + 2);
     i = 0;
     do while i < 10 and get$token <> tok$eof;
-        call pr$tok;
-        call new$line;
+        call print$token;
+        call new_line;
         call tok$next;
         i = i + 1;
     end;

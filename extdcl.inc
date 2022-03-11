@@ -1,32 +1,36 @@
 /* string functions */
-string$equal: procedure (p$str1, p$str2) boolean external;
+string_equal: procedure (p$str1, p$str2) boolean external;
     declare p$str1 pointer;
     declare p$str2 pointer;
-end string$equal;
+end string_equal;
 
-chr$upper: procedure (c) byte external;
+chr_upper: procedure (c) byte external;
     declare c byte;
-end chr$upper;
+end chr_upper;
 
 /* console functions */
-print$string: procedure (p$str) external;
+print_string: procedure (p$str) external;
     declare p$str pointer;
-end print$string;
+end print_string;
 
-print$char: procedure (chr) external;
+print_char: procedure (chr) external;
     declare chr byte;
-end print$char;
+end print_char;
 
-new$line: procedure external;
-end new$line;
+new_line: procedure external;
+end new_line;
 
-print$line: procedure (p$str) external;
+print_line: procedure (p$str) external;
     declare p$str pointer;
-end print$line;
+end print_line;
 
-print$number: procedure (n) external;
+print_hex_byte: procedure (b) external;
+    declare b byte;
+end print_hex_byte;
+
+print_uint: procedure (n) external;
     declare n uint;
-end print$number;
+end print_uint;
 
 
 /* TODO: tokenizer functions */

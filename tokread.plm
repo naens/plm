@@ -26,10 +26,10 @@
  *     identifier of the token read.  On end of input it returns the tok$eof
  *     token, which is consistent with how parsers are usually described in
  *     literature.
- *   * For additional data from the token, the value is stored in tkn$val
+ *   * For additional data from the token, the value is stored in token$value
  *     if it's a token with a numeric value. And when the token
  *     is of a type that contains a string (identifiers and string literals),
- *     the pointer to the string is stored in tkn$str external variable
+ *     the pointer to the string is stored in token$string external variable
  *     Both the number and the string values are temporary, so if the user
  *     intends to keep them for later use, he has to make a copy of them.
  *   * When the user has finished using the token and wants to move to the next
@@ -43,7 +43,7 @@
 tokread:
 do;
 
-$include (globlit.inc)
+$include (glob.inc)
 $include (toklit.inc)
 $include (extdcl.inc)
 
@@ -131,10 +131,10 @@ $include (extdcl.inc)
 
     /* TOKENIZER */
     /* tokenizer variables */
-    declare tkn$rd boolean initial (false);
-    declare tkn$id byte;
-    declare tkn$val uint public;
-    declare tkn$str pointer public;
+    declare token$ready boolean initial (false);
+    declare token$id byte;
+    declare token$value uint public;
+    declare token$string pointer public;
     declare tbuf$len literally '80h';
     declare tok$buf (tbuf$len) byte;
 
@@ -205,17 +205,17 @@ $include (extdcl.inc)
             call next$char;
     end skip$comment;
 
-    /* check if tkn$str is a keyword, and if so return it,
+    /* check if token$string is a keyword, and if so return it,
        otherwise return tok$ident
     */
     str$tok$id: procedure byte;
-        if string$equal(tkn$str, @('DECLARE', 0)) then
+        if string_equal(token$string, @('DECLARE', 0)) then
             return tok$declare;
-        else if string$equal(tkn$str, @('BYTE', 0)) then
+        else if string_equal(token$string, @('BYTE', 0)) then
             return tok$byte;
-        else if string$equal(tkn$str, @('DO', 0)) then
+        else if string_equal(token$string, @('DO', 0)) then
             return tok$do;
-        else if string$equal(tkn$str, @('END', 0)) then
+        else if string_equal(token$string, @('END', 0)) then
             return tok$end;
         else /***/
             return tok$ident;
@@ -228,7 +228,7 @@ $include (extdcl.inc)
         declare i uint;
         i = 0;
         buffer$ptr = @tok$buf;
-        tkn$str = buffer$ptr;
+        token$string = buffer$ptr;
         call next$char;    /* skip the first quote character */
         /* TODO: implement two quote characters as quote character in string */
         /* check buffer length before writing */
@@ -238,8 +238,8 @@ $include (extdcl.inc)
             call next$char;
         end;
         buffer$chr(i) = 0;
-        tkn$rd = true;
-        tkn$id = tok$string;
+        token$ready = true;
+        token$id = tok$string;
         if not input$end then
             call next$char;
     end read$string;
@@ -252,7 +252,7 @@ $include (extdcl.inc)
 
         i = 0;
         buffer$ptr = @tok$buf;
-        tkn$str = buffer$ptr;
+        token$string = buffer$ptr;
         /* check buffer length before writing */
         do while not input$end and word$char(get$char) and i < tbuf$len - 1;
             if get$char <> '$' then
@@ -263,8 +263,8 @@ $include (extdcl.inc)
             call next$char;
         end;
         buffer$chr(i) = 0;
-        tkn$rd = true;
-        tkn$id = str$tok$id;
+        token$ready = true;
+        token$id = str$tok$id;
     end read$word;
 
     /* read a number from the input */
@@ -275,19 +275,19 @@ $include (extdcl.inc)
             n = n * 10 + get$char - '0';
             call next$char;
         end;
-        tkn$id = tok$number;
-        tkn$val = n;
-        tkn$rd = true;
+        token$id = tok$number;
+        token$value = n;
+        token$ready = true;
     end read$number;
 
     read$char: procedure;
         if not input$end then
         do;
-            tkn$val = get$char;
+            token$value = get$char;
             /* for special characters, the ascii code serves as token id */
-            tkn$id = get$char;
+            token$id = get$char;
             call next$char;
-            tkn$rd = true;
+            token$ready = true;
         end;
     end read$char;
 
@@ -314,7 +314,7 @@ $include (extdcl.inc)
             call skip$spaces;
         end;
         if input$end then
-            tkn$id = tok$eof;
+            token$id = tok$eof;
         else if get$char = quote then
             call read$string;
         else if dec$char(get$char) then
@@ -342,37 +342,37 @@ $include (extdcl.inc)
  ******
  */
     get$token: procedure byte public;
-        if not tkn$rd then
+        if not token$ready then
             call tok$next;
-        return tkn$id;
+        return token$id;
     end get$token;
 
     pr$chr$tok: procedure (tok$id);
         declare tok$id byte;
-        call print$string(@('CHR[', 0));
-        call print$char(low(tkn$val));
-        call print$char(']');
+        call print_string(@('CHR[', 0));
+        call print_char(low(token$value));
+        call print_char(']');
     end pr$chr$tok;
 
     pr$kw$tok: procedure (tok$id);
         declare tok$id byte;
         if tok$id = tok$declare then
-            call print$string(@('DECLARE', 0));
+            call print_string(@('DECLARE', 0));
         else if tok$id = tok$byte then
-            call print$string(@('BYTE', 0));
+            call print_string(@('BYTE', 0));
         else if tok$id = tok$do then
-            call print$string(@('DO', 0));
+            call print_string(@('DO', 0));
         else if tok$id = tok$end then
-            call print$string(@('END', 0));
+            call print_string(@('END', 0));
     end pr$kw$tok;
 
-/****f* tokread/pr$tok
+/****f* tokread/print$token
  *
  * NAME
- *   pr$tok -- print token
+ *   print$token -- print token
  *
  * SYNOPSIS
- *   call pr$tok;
+ *   call print$token;
  *
  * DESCRIPTION
  *   This procedure prints the current token in a text representation without
@@ -380,37 +380,37 @@ $include (extdcl.inc)
  *
  ******
  */
-    pr$tok: procedure public;
-        call print$string(@('TOKEN: ', 0));
-        if tkn$id = tok$ident then
+    print$token: procedure public;
+        call print_string(@('TOKEN: ', 0));
+        if token$id = tok$ident then
         do;
-            call print$string(@('IDENTIFIER:', 0));
-            call print$string(tkn$str);
+            call print_string(@('IDENTIFIER:', 0));
+            call print_string(token$string);
             return;
         end;
-        if tkn$id = tok$number then
+        if token$id = tok$number then
         do;
-            call print$string(@('NUMBER:', 0));
-            call print$number(tkn$val);
+            call print_string(@('NUMBER:', 0));
+            call print_uint(token$value);
             return;
         end;
-        if tkn$id = tok$string then
+        if token$id = tok$string then
         do;
-            call print$string(@('STRING: [', 0));
-            call print$string(tkn$str);
-            call print$char(']');
+            call print_string(@('STRING: [', 0));
+            call print_string(token$string);
+            call print_char(']');
         end;
-        else if tkn$id = tok$eof then
-            call print$string(@('END OF INPUT', 0));
-        else if is$character(tkn$id) then
-            call pr$chr$tok(tkn$id);
-        else if is$keyword(tkn$id) then
-            call pr$kw$tok(tkn$id);
+        else if token$id = tok$eof then
+            call print_string(@('END OF INPUT', 0));
+        else if is$character(token$id) then
+            call pr$chr$tok(token$id);
+        else if is$keyword(token$id) then
+            call pr$kw$tok(token$id);
         else /***/
         do;
-            call print$string(@('UNKNOWN TOKEN:', 0));
-            call print$number(tkn$id);
+            call print_string(@('UNKNOWN TOKEN:', 0));
+            call print_uint(token$id);
         end;
-    end pr$tok;
+    end print$token;
 
 end;
