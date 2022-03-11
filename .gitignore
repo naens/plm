@@ -12,6 +12,7 @@
 # backups
 *.bak
 *.$$$
+*.old
 *~
 
 AUTOEXEC.Z80
