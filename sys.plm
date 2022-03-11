@@ -1,0 +1,35 @@
+$if not sys$lib
+$set (sys$lib)
+
+sys:
+do;
+
+$include (glob.inc)
+
+get_command_tail: procedure(pstr);
+    declare pstr pointer;
+    declare str based pstr (*) byte;
+    declare psp$sel selector;
+    declare psp based psp$sel structure (
+        skip (80h) byte,
+        length byte,
+        buf (7Fh) byte);
+    declare i uint;
+
+    psp$sel = dos_get_psp;
+    i = 1;    /* the first char is a space */
+    do while i < psp.length and psp.buf(i) <> cr;
+        str(i - 1) = psp.buf(i);
+        i = i + 1;
+    end;
+    str(i - 1) = 0;
+end get_command_tail;
+
+terminate: procedure(code);
+    declare code word;
+    call dos_exit(code);
+end terminate;
+
+end;
+
+$endif
