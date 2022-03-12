@@ -33,5 +33,28 @@ print_uint: procedure (n) external;
 end print_uint;
 
 
-/* TODO: tokenizer functions */
+/* tokenizer functions */
+reader$set$ptr: procedure (ptr) external;
+    declare ptr pointer;
+end reader$set$ptr;
+
+get$token: procedure byte external;
+end get$token;
+
+print$token: procedure external;
+end print$token;
+
+tok$next: procedure external;
+end tok$next;
+
+/* system functions */
+get_command_tail: procedure (p$str) external;
+    declare p$str pointer;
+end get_command_tail;
+
+terminate: procedure (code) external;
+    declare code byte;
+end terminate;
+
+
 

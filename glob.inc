@@ -17,6 +17,3 @@ declare cr literally '0dh';
 declare eol literally '24h';
 declare quote literally '27h';
 
-/* memory locations */
-declare tail$start literally '80h';
-

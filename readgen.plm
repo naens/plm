@@ -1,50 +1,25 @@
 readgen:
-    do;
+do;
 
-$include (d:iocld.src)
-
-$include (globlit.inc)
+$include (glob.inc)
 $include (toklit.inc)
 $include (extdcl.inc)
 
 
-    reader$set$ptr: procedure (ptr) external;
-        declare ptr pointer;
-    end reader$set$ptr;
+/* MAIN PROGRAM */
+declare tail$ptr pointer;
 
-    get$token: procedure byte external;
-    end get$token;
+call get_command_tail(tail$ptr);
+call print_string(@('string entered: {', 0));
+call print_string(tail$ptr);
+call print_line(@('}', 0));
+call reader$set$ptr(tail$ptr);
+do while get$token <> tok$eof;
+    call print$token;
+    call new_line;
+    call tok$next;
+end;
 
-    print$token: procedure external;
-    end print$token;
-
-    tok$next: procedure external;
-    end tok$next;
-
-
-    /* MAIN PROGRAM */
-    declare tail$ptr pointer;
-    declare tail$chr based tail$ptr byte;
-    declare tail$len byte;
-    declare i byte;
-    declare cmd$ptr pointer;
-    declare cmd$chr based cmd$ptr byte;
-
-    tail$ptr = tail$start;
-    tail$len = tail$chr;
-    tail$ptr = tail$ptr + tail$len + 1;
-    tail$chr = 0;
-    call print_string(.('string entered: {', 0));
-    call print_string(tail$start + 1);
-    call print_line(.('}', 0));
-    call reader$set$ptr(tail$start + 2);
-    i = 0;
-    do while i < 10 and get$token <> tok$eof;
-        call print$token;
-        call new_line;
-        call tok$next;
-        i = i + 1;
-    end;
-exit:
+call terminate(0);
 
 end;

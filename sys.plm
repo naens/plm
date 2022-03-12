@@ -6,9 +6,9 @@ do;
 
 $include (glob.inc)
 
-get_command_tail: procedure(pstr);
-    declare pstr pointer;
-    declare str based pstr (*) byte;
+get_command_tail: procedure (p$str) public;
+    declare p$str pointer;
+    declare str based p$str (*) byte;
     declare psp$sel selector;
     declare psp based psp$sel structure (
         skip (80h) byte,
@@ -25,8 +25,8 @@ get_command_tail: procedure(pstr);
     str(i - 1) = 0;
 end get_command_tail;
 
-terminate: procedure(code);
-    declare code word;
+terminate: procedure (code) public;
+    declare code byte;
     call dos_exit(code);
 end terminate;
 
