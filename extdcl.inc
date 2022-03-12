@@ -4,9 +4,9 @@ string_equal: procedure (p$str1, p$str2) boolean external;
     declare p$str2 pointer;
 end string_equal;
 
-chr_upper: procedure (c) byte external;
+char_upper: procedure (c) byte external;
     declare c byte;
-end chr_upper;
+end char_upper;
 
 /* console functions */
 print_string: procedure (p$str) external;
@@ -34,6 +34,9 @@ end print_uint;
 
 
 /* tokenizer functions */
+
+$if not tokenizer
+
 reader$set$ptr: procedure (ptr) external;
     declare ptr pointer;
 end reader$set$ptr;
@@ -46,6 +49,9 @@ end print$token;
 
 tok$next: procedure external;
 end tok$next;
+
+$endif
+
 
 /* system functions */
 get_command_tail: procedure (p$str) external;

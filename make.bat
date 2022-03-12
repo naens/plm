@@ -1,4 +1,3 @@
-@echo off
 del readgen.86
 del readgen.exe
 del readgen.mp1

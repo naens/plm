@@ -66,7 +66,7 @@ end string_equal;
 char_upper: procedure (c) byte public;
     declare c byte;
     if c >= 'a' and c <= 'z' then
-        return c and 06fh;
+        return c and 05fh;
     else
         return c;
 end char_upper;

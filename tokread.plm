@@ -43,6 +43,7 @@
 tokread:
 do;
 
+$set (tokenizer)
 $include (glob.inc)
 $include (toklit.inc)
 $include (extdcl.inc)
@@ -74,6 +75,7 @@ $include (extdcl.inc)
     reader$set$ptr: procedure (ptr) public;
         declare ptr pointer;
         reader$ptr = ptr;
+        reader$idx = 0;
     end reader$set$ptr;
 
     input$end: procedure boolean;
@@ -257,7 +259,7 @@ $include (extdcl.inc)
         do while not input$end and word$char(get$char) and i < tbuf$len - 1;
             if get$char <> '$' then
             do;
-                buffer$chr(i) = get$char;
+                buffer$chr(i) = char_upper(get$char);
                 i = i + 1;
             end;
             call next$char;
