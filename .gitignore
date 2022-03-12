@@ -8,6 +8,9 @@
 *.rom
 *.lst
 *.obj
+*.86
+*.MP1
+*.exe
 
 # backups
 *.bak
