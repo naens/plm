@@ -212,13 +212,13 @@ end skip$comment;
 */
 str$tok$id: procedure byte;
     if string_equal(token$string, @('DECLARE', 0)) then
-        return tok$declare;
+        return kw$declare;
     else if string_equal(token$string, @('BYTE', 0)) then
-        return tok$byte;
+        return kw$byte;
     else if string_equal(token$string, @('DO', 0)) then
-        return tok$do;
+        return kw$do;
     else if string_equal(token$string, @('END', 0)) then
-        return tok$end;
+        return kw$end;
     else /***/
         return tok$ident;
 end str$tok$id;
@@ -358,13 +358,13 @@ end pr$chr$tok;
 
 pr$kw$tok: procedure (tok$id);
     declare tok$id byte;
-    if tok$id = tok$declare then
+    if tok$id = kw$declare then
         call print_string(@('DECLARE', 0));
-    else if tok$id = tok$byte then
+    else if tok$id = kw$byte then
         call print_string(@('BYTE', 0));
-    else if tok$id = tok$do then
+    else if tok$id = kw$do then
         call print_string(@('DO', 0));
-    else if tok$id = tok$end then
+    else if tok$id = kw$end then
         call print_string(@('END', 0));
 end pr$kw$tok;
 

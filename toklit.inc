@@ -20,8 +20,18 @@
     declare tok$at literally '''@''';
 
     /* keywords: in range [200..250] */
-    declare tok$declare literally '200';
-    declare tok$byte literally '220';
-    declare tok$do literally '230';
-    declare tok$end literally '240';
+    declare kw$address literally '200';
+    declare kw$and literally '201';
+    declare kw$at literally '202';
+    declare kw$based literally '203';
+    declare kw$by literally '204';
+    declare kw$byte literally '205';
+    declare kw$call literally '206';
+    declare kw$case literally '207';
+    declare kw$cause literally '208'; /* causeinterrupt */
+    declare kw$data literally '209';
+    declare kw$declare literally '210';
+    declare kw$disable literally '211';
+    declare kw$do literally '212';
+    declare kw$end literally '240';
 
