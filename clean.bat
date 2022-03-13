@@ -3,7 +3,6 @@ del *.bak > NUL
 del *.com > NUL
 del *.sym > NUL
 del *.rel > NUL
-del *.z80 > NUL
 del *.mac > NUL
 del *.ram > NUL
 del *.rom > NUL
