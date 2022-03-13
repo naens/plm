@@ -48,13 +48,13 @@ $include (glob.inc)
 $include (toklit.inc)
 $include (extdcl.inc)
 
-    /* READER */
-    /* reader variables */
-    declare reader$ptr pointer;   /* pointer to the current string */
-    declare reader$chr based reader$ptr (*) byte;
-    declare reader$idx uint;
-    declare reader$prev byte initial (0);
-    declare reader$saved byte initial (0);
+/* READER */
+/* reader variables */
+declare reader$ptr pointer;   /* pointer to the current string */
+declare reader$chr based reader$ptr (*) byte;
+declare reader$idx uint;
+declare reader$prev byte initial (0);
+declare reader$saved byte initial (0);
 
 /****f* tokread/reader$set$ptr
  *
@@ -72,226 +72,226 @@ $include (extdcl.inc)
  *
  ******
  */
-    reader$set$ptr: procedure (ptr) public;
-        declare ptr pointer;
-        reader$ptr = ptr;
-        reader$idx = 0;
-    end reader$set$ptr;
+reader$set$ptr: procedure (ptr) public;
+    declare ptr pointer;
+    reader$ptr = ptr;
+    reader$idx = 0;
+end reader$set$ptr;
 
-    input$end: procedure boolean;
-        return reader$chr(reader$idx) = 0;
-    end input$end;
+input$end: procedure boolean;
+    return reader$chr(reader$idx) = 0;
+end input$end;
 
-    get$char: procedure byte;
-        if reader$saved = 0 then
-            return reader$chr(reader$idx);
+get$char: procedure byte;
+    if reader$saved = 0 then
+        return reader$chr(reader$idx);
+    else
+        return reader$saved;
+end get$char;
+
+next$char: procedure;
+    if reader$saved = 0 then
+    do;
+        reader$prev = reader$chr(reader$idx);
+        reader$idx = reader$idx + 1;
+    end;
+    else
+    do;
+        reader$saved = 0;
+    end;
+end next$char;
+
+unread$char: procedure;
+    reader$saved = reader$prev;
+end unread$char;
+
+check$char: procedure (chr) boolean;
+    declare chr byte;
+    if not input$end then
+    do;
+        if chr = get$char then
+        do;
+            call next$char;
+            return true;
+        end;
+    end;
+    return false;
+end check$char;
+
+check$2chars: procedure (c1, c2) boolean;
+    declare (c1, c2) byte;
+    if check$char(c1) then
+    do;
+        if check$char(c2) then
+            return true;
         else
-            return reader$saved;
-    end get$char;
+            call unread$char;
+    end;
+    return false;
+end check$2chars;
 
-    next$char: procedure;
-        if reader$saved = 0 then
+
+/* TOKENIZER */
+/* tokenizer variables */
+declare token$ready boolean initial (false);
+declare token$id byte;
+declare token$value uint public;
+declare token$string pointer public;
+declare tbuf$len literally '80h';
+declare tok$buf (tbuf$len) byte;
+
+/* check whether it's a special character */
+is$character: procedure (tok$id) boolean;
+    declare tok$id byte;
+    return (tok$id >= 40 and tok$id <= 47)
+        or  (tok$id >= 58 and tok$id <= 64);
+end is$character;
+
+is$keyword: procedure (tok$id) boolean;
+    declare tok$id byte;
+    return tok$id >= 200 and tok$id <= 250;
+end is$keyword;
+
+
+/* check whether the character is an identifier or a keyword character */
+word$char: procedure (chr) boolean;
+    declare chr byte;
+    if chr >= 'a' and chr <= 'z' then
+        return true;
+    if chr >= 'A' and chr <= 'Z' then
+        return true;
+    if chr >= '0' and chr <= '9' then
+        return true;
+    if chr = '$' or chr = '_' then
+        return true;
+    return false;
+end word$char;
+
+word$first: procedure (chr) boolean;
+    declare chr byte;
+    if chr >= 'a' and chr <= 'z' then
+        return true;
+    if chr >= 'A' and chr <= 'Z' then
+        return true;
+    return false;
+end word$first;
+
+/* check whether the character is a decimal digit */
+dec$char: procedure (chr) boolean;
+    declare chr byte;
+    return chr >= '0' and chr <= '9';
+end dec$char;
+
+/* checks whether chr is equivalent to a space */
+space$char: procedure (chr) boolean;
+    declare chr byte;
+    return chr = space or chr = tab or chr = lf or chr = cr;
+end space$char;
+
+/* skips characters equivalent to a space */
+skip$spaces: procedure;
+    do while space$char(get$char);
+        call next$char;
+    end;
+end skip$spaces;
+
+/* skip the comment after the '/*' sequence was read */
+skip$comment: procedure;
+    declare star$state boolean;
+    star$state = false;
+    do while not input$end and not (star$state and get$char = '/');
+        star$state = (get$char = '*');
+        call next$char;
+    end;
+    if not input$end then
+        call next$char;
+end skip$comment;
+
+/* check if token$string is a keyword, and if so return it,
+   otherwise return tok$ident
+*/
+str$tok$id: procedure byte;
+    if string_equal(token$string, @('DECLARE', 0)) then
+        return tok$declare;
+    else if string_equal(token$string, @('BYTE', 0)) then
+        return tok$byte;
+    else if string_equal(token$string, @('DO', 0)) then
+        return tok$do;
+    else if string_equal(token$string, @('END', 0)) then
+        return tok$end;
+    else /***/
+        return tok$ident;
+end str$tok$id;
+
+/* read a string literal together with the terminating quote */
+read$string: procedure;
+    declare buffer$ptr pointer;
+    declare buffer$chr based buffer$ptr (*) byte;
+    declare i uint;
+    i = 0;
+    buffer$ptr = @tok$buf;
+    token$string = buffer$ptr;
+    call next$char;    /* skip the first quote character */
+    /* TODO: implement two quote characters as quote character in string */
+    /* check buffer length before writing */
+    do while not input$end and get$char <> quote and i < tbuf$len - 1;
+        buffer$chr(i) = get$char;
+        i = i + 1;
+        call next$char;
+    end;
+    buffer$chr(i) = 0;
+    token$ready = true;
+    token$id = tok$string;
+    if not input$end then
+        call next$char;
+end read$string;
+
+/* read a string that may be an identifier or a keyword */
+read$word: procedure;
+    declare buffer$ptr pointer;
+    declare buffer$chr based buffer$ptr (*) byte;
+    declare i uint;
+
+    i = 0;
+    buffer$ptr = @tok$buf;
+    token$string = buffer$ptr;
+    /* check buffer length before writing */
+    do while not input$end and word$char(get$char) and i < tbuf$len - 1;
+        if get$char <> '$' then
         do;
-            reader$prev = reader$chr(reader$idx);
-            reader$idx = reader$idx + 1;
-        end;
-        else
-        do;
-            reader$saved = 0;
-        end;
-    end next$char;
-
-    unread$char: procedure;
-        reader$saved = reader$prev;
-    end unread$char;
-
-    check$char: procedure (chr) boolean;
-        declare chr byte;
-        if not input$end then
-        do;
-            if chr = get$char then
-            do;
-                call next$char;
-                return true;
-            end;
-        end;
-        return false;
-    end check$char;
-
-    check$2chars: procedure (c1, c2) boolean;
-        declare (c1, c2) byte;
-        if check$char(c1) then
-        do;
-            if check$char(c2) then
-                return true;
-            else
-                call unread$char;
-        end;
-        return false;
-    end check$2chars;
-
-
-    /* TOKENIZER */
-    /* tokenizer variables */
-    declare token$ready boolean initial (false);
-    declare token$id byte;
-    declare token$value uint public;
-    declare token$string pointer public;
-    declare tbuf$len literally '80h';
-    declare tok$buf (tbuf$len) byte;
-
-    /* check whether it's a special character */
-    is$character: procedure (tok$id) boolean;
-        declare tok$id byte;
-        return (tok$id >= 40 and tok$id <= 47)
-            or  (tok$id >= 58 and tok$id <= 64);
-    end is$character;
-
-    is$keyword: procedure (tok$id) boolean;
-        declare tok$id byte;
-        return tok$id >= 200 and tok$id <= 250;
-    end is$keyword;
-
-
-    /* check whether the character is an identifier or a keyword character */
-    word$char: procedure (chr) boolean;
-        declare chr byte;
-        if chr >= 'a' and chr <= 'z' then
-            return true;
-        if chr >= 'A' and chr <= 'Z' then
-            return true;
-        if chr >= '0' and chr <= '9' then
-            return true;
-        if chr = '$' or chr = '_' then
-            return true;
-        return false;
-    end word$char;
-
-    word$first: procedure (chr) boolean;
-        declare chr byte;
-        if chr >= 'a' and chr <= 'z' then
-            return true;
-        if chr >= 'A' and chr <= 'Z' then
-            return true;
-        return false;
-    end word$first;
-
-    /* check whether the character is a decimal digit */
-    dec$char: procedure (chr) boolean;
-        declare chr byte;
-        return chr >= '0' and chr <= '9';
-    end dec$char;
-
-    /* checks whether chr is equivalent to a space */
-    space$char: procedure (chr) boolean;
-        declare chr byte;
-        return chr = space or chr = tab or chr = lf or chr = cr;
-    end space$char;
-
-    /* skips characters equivalent to a space */
-    skip$spaces: procedure;
-        do while space$char(get$char);
-            call next$char;
-        end;
-    end skip$spaces;
-
-    /* skip the comment after the '/*' sequence was read */
-    skip$comment: procedure;
-        declare star$state boolean;
-        star$state = false;
-        do while not input$end and not (star$state and get$char = '/');
-            star$state = (get$char = '*');
-            call next$char;
-        end;
-        if not input$end then
-            call next$char;
-    end skip$comment;
-
-    /* check if token$string is a keyword, and if so return it,
-       otherwise return tok$ident
-    */
-    str$tok$id: procedure byte;
-        if string_equal(token$string, @('DECLARE', 0)) then
-            return tok$declare;
-        else if string_equal(token$string, @('BYTE', 0)) then
-            return tok$byte;
-        else if string_equal(token$string, @('DO', 0)) then
-            return tok$do;
-        else if string_equal(token$string, @('END', 0)) then
-            return tok$end;
-        else /***/
-            return tok$ident;
-    end str$tok$id;
-
-    /* read a string literal together with the terminating quote */
-    read$string: procedure;
-        declare buffer$ptr pointer;
-        declare buffer$chr based buffer$ptr (*) byte;
-        declare i uint;
-        i = 0;
-        buffer$ptr = @tok$buf;
-        token$string = buffer$ptr;
-        call next$char;    /* skip the first quote character */
-        /* TODO: implement two quote characters as quote character in string */
-        /* check buffer length before writing */
-        do while not input$end and get$char <> quote and i < tbuf$len - 1;
-            buffer$chr(i) = get$char;
+            buffer$chr(i) = char_upper(get$char);
             i = i + 1;
-            call next$char;
         end;
-        buffer$chr(i) = 0;
+        call next$char;
+    end;
+    buffer$chr(i) = 0;
+    token$ready = true;
+    token$id = str$tok$id;
+end read$word;
+
+/* read a number from the input */
+read$number: procedure;
+    declare n uint;
+    n = 0;
+    do while dec$char(get$char);
+        n = n * 10 + get$char - '0';
+        call next$char;
+    end;
+    token$id = tok$number;
+    token$value = n;
+    token$ready = true;
+end read$number;
+
+read$char: procedure;
+    if not input$end then
+    do;
+        token$value = get$char;
+        /* for special characters, the ascii code serves as token id */
+        token$id = get$char;
+        call next$char;
         token$ready = true;
-        token$id = tok$string;
-        if not input$end then
-            call next$char;
-    end read$string;
-
-    /* read a string that may be an identifier or a keyword */
-    read$word: procedure;
-        declare buffer$ptr pointer;
-        declare buffer$chr based buffer$ptr (*) byte;
-        declare i uint;
-
-        i = 0;
-        buffer$ptr = @tok$buf;
-        token$string = buffer$ptr;
-        /* check buffer length before writing */
-        do while not input$end and word$char(get$char) and i < tbuf$len - 1;
-            if get$char <> '$' then
-            do;
-                buffer$chr(i) = char_upper(get$char);
-                i = i + 1;
-            end;
-            call next$char;
-        end;
-        buffer$chr(i) = 0;
-        token$ready = true;
-        token$id = str$tok$id;
-    end read$word;
-
-    /* read a number from the input */
-    read$number: procedure;
-        declare n uint;
-        n = 0;
-        do while dec$char(get$char);
-            n = n * 10 + get$char - '0';
-            call next$char;
-        end;
-        token$id = tok$number;
-        token$value = n;
-        token$ready = true;
-    end read$number;
-
-    read$char: procedure;
-        if not input$end then
-        do;
-            token$value = get$char;
-            /* for special characters, the ascii code serves as token id */
-            token$id = get$char;
-            call next$char;
-            token$ready = true;
-        end;
-    end read$char;
+    end;
+end read$char;
 
 /****f* tokread/tok$next
  *
@@ -307,25 +307,25 @@ $include (extdcl.inc)
  *
  ******
  */
-    tok$next: procedure public;
-        call skip$spaces;    /* skip spaces before reading the next token */
+tok$next: procedure public;
+    call skip$spaces;    /* skip spaces before reading the next token */
 
-        /* Skip all comments. */
-        do while check$2chars('/', '*');
-            call skip$comment;
-            call skip$spaces;
-        end;
-        if input$end then
-            token$id = tok$eof;
-        else if get$char = quote then
-            call read$string;
-        else if dec$char(get$char) then
-            call read$number;
-        else if word$first(get$char) then
-            call read$word;
-        else
-            call read$char;
-    end tok$next;
+    /* Skip all comments. */
+    do while check$2chars('/', '*');
+        call skip$comment;
+        call skip$spaces;
+    end;
+    if input$end then
+        token$id = tok$eof;
+    else if get$char = quote then
+        call read$string;
+    else if dec$char(get$char) then
+        call read$number;
+    else if word$first(get$char) then
+        call read$word;
+    else
+        call read$char;
+end tok$next;
 
 /****f* tokread/get$token
  *
@@ -343,30 +343,30 @@ $include (extdcl.inc)
  *
  ******
  */
-    get$token: procedure byte public;
-        if not token$ready then
-            call tok$next;
-        return token$id;
-    end get$token;
+get$token: procedure byte public;
+    if not token$ready then
+        call tok$next;
+    return token$id;
+end get$token;
 
-    pr$chr$tok: procedure (tok$id);
-        declare tok$id byte;
-        call print_string(@('CHR[', 0));
-        call print_char(low(token$value));
-        call print_char(']');
-    end pr$chr$tok;
+pr$chr$tok: procedure (tok$id);
+    declare tok$id byte;
+    call print_string(@('CHR[', 0));
+    call print_char(low(token$value));
+    call print_char(']');
+end pr$chr$tok;
 
-    pr$kw$tok: procedure (tok$id);
-        declare tok$id byte;
-        if tok$id = tok$declare then
-            call print_string(@('DECLARE', 0));
-        else if tok$id = tok$byte then
-            call print_string(@('BYTE', 0));
-        else if tok$id = tok$do then
-            call print_string(@('DO', 0));
-        else if tok$id = tok$end then
-            call print_string(@('END', 0));
-    end pr$kw$tok;
+pr$kw$tok: procedure (tok$id);
+    declare tok$id byte;
+    if tok$id = tok$declare then
+        call print_string(@('DECLARE', 0));
+    else if tok$id = tok$byte then
+        call print_string(@('BYTE', 0));
+    else if tok$id = tok$do then
+        call print_string(@('DO', 0));
+    else if tok$id = tok$end then
+        call print_string(@('END', 0));
+end pr$kw$tok;
 
 /****f* tokread/print$token
  *
@@ -382,37 +382,37 @@ $include (extdcl.inc)
  *
  ******
  */
-    print$token: procedure public;
-        call print_string(@('TOKEN: ', 0));
-        if token$id = tok$ident then
-        do;
-            call print_string(@('IDENTIFIER:', 0));
-            call print_string(token$string);
-            return;
-        end;
-        if token$id = tok$number then
-        do;
-            call print_string(@('NUMBER:', 0));
-            call print_uint(token$value);
-            return;
-        end;
-        if token$id = tok$string then
-        do;
-            call print_string(@('STRING: [', 0));
-            call print_string(token$string);
-            call print_char(']');
-        end;
-        else if token$id = tok$eof then
-            call print_string(@('END OF INPUT', 0));
-        else if is$character(token$id) then
-            call pr$chr$tok(token$id);
-        else if is$keyword(token$id) then
-            call pr$kw$tok(token$id);
-        else /***/
-        do;
-            call print_string(@('UNKNOWN TOKEN:', 0));
-            call print_uint(token$id);
-        end;
-    end print$token;
+print$token: procedure public;
+    call print_string(@('TOKEN: ', 0));
+    if token$id = tok$ident then
+    do;
+        call print_string(@('IDENTIFIER:', 0));
+        call print_string(token$string);
+        return;
+    end;
+    if token$id = tok$number then
+    do;
+        call print_string(@('NUMBER:', 0));
+        call print_uint(token$value);
+        return;
+    end;
+    if token$id = tok$string then
+    do;
+        call print_string(@('STRING: [', 0));
+        call print_string(token$string);
+        call print_char(']');
+    end;
+    else if token$id = tok$eof then
+        call print_string(@('END OF INPUT', 0));
+    else if is$character(token$id) then
+        call pr$chr$tok(token$id);
+    else if is$keyword(token$id) then
+        call pr$kw$tok(token$id);
+    else /***/
+    do;
+        call print_string(@('UNKNOWN TOKEN:', 0));
+        call print_uint(token$id);
+    end;
+end print$token;
 
 end;
