@@ -6,14 +6,14 @@ $include (toklit.inc)
 $include (extdcl.inc)
 
 
-/* MAIN PROGRAM */
-declare tail$ptr pointer;
+declare tail$len literally '128';
+declare tail (tail$len) byte;
 
-call get_command_tail(tail$ptr);
+call get_command_tail(@tail, tail$len);
 call print_string(@('string entered: {', 0));
-call print_string(tail$ptr);
+call print_string(@tail);
 call print_line(@('}', 0));
-call reader$set$ptr(tail$ptr);
+call reader$set$ptr(@tail);
 do while get$token <> tok$eof;
     call print$token;
     call new_line;

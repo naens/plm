@@ -54,8 +54,9 @@ $endif
 
 
 /* system functions */
-get_command_tail: procedure (p$str) external;
+get_command_tail: procedure (p$str, len) external;
     declare p$str pointer;
+    declare len uint;
 end get_command_tail;
 
 terminate: procedure (code) external;
