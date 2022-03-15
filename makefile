@@ -2,7 +2,10 @@ all: dos .symbolic
 
 dos: readgen.exe .symbolic
 
-readgen.exe: $src
+sys.obj: sys.plm glob.inc
+	plm86 sys.plm debug nolist
+
+readgen.exe: sys.obj
 	udi2dos readgen
 
 clean: .symbolic
