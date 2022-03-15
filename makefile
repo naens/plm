@@ -1,13 +1,19 @@
+.EXTENSIONS:
+.EXTENSIONS: .obj .plm .exe
+
 all: dos .symbolic
 
 dos: readgen.exe .symbolic
 
-sys.obj: sys.plm glob.inc
-	plm86 sys.plm debug nolist
+object_files = sys.obj cons.obj string.obj tokread.obj readgen.obj
 
-readgen.exe: sys.obj
+.plm.obj:
+	plm86 $*.plm debug nolist
+
+readgen.exe:  $(object_files)
 	udi2dos readgen
 
 clean: .symbolic
-	del *.obj
-	del *.exe
+	rm *.obj
+	rm *.lst
+	rm *.exe
