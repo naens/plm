@@ -1,7 +1,0 @@
-era $1.mac
-era $1.com
-era $1.sym
-era $1.rel
-d:plmx $1.plm; C+ M+ L-
-m80 =$1
-link $1,d:iolib[s],d:rlib[s]
