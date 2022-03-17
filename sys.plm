@@ -1,3 +1,15 @@
+/****h* plm/sys
+ *
+ * NAME
+ *   sys -- the system module
+ *
+ * DESCRIPTION
+ *   This module deals with OS-related stuff, which is not related to console
+ *   and files.
+ *
+ ******
+ */
+
 $if not sys$lib
 $set (sys$lib)
 
