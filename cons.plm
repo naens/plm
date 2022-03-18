@@ -1,13 +1,50 @@
+/****h* plm/cons
+ *
+ * NAME
+ *   cons -- console input and output module
+ *
+ * DESCRIPTION
+ *   This modules reads and writes data from and to the console.
+ *
+ ******
+ */
+
 cons:
 do;
 
 $include (glob.inc)
 
+/****f* cons/print_char
+ *
+ * NAME
+ *   print_char -- print a character to the console
+ *
+ * SYNOPSIS
+ *   call print_char(chr);
+ *
+ * DESCRIPTION
+ *   Print the character passed as parameter to the console standard output.
+ *
+ ******
+ */
 print_char: procedure (chr) public;
     declare chr byte;
     call dos_std_out(chr);
 end print_char;
 
+/****f* cons/print_string
+ *
+ * NAME
+ *   print_string -- print a null-terminated string
+ *
+ * SYNOPSIS
+ *   call print_string(p$str);
+ *
+ * DESCRIPTION
+ *   Print the null-terminated string pointed by p$str.
+ *
+ ******
+ */
 print_string: procedure (pstr) public;
     declare pstr pointer;
     declare str based pstr (*) byte;
@@ -22,10 +59,37 @@ print_string: procedure (pstr) public;
     call dos_std_string_out(@buf);
 end print_string;
 
+/****f* cons/new_line
+ *
+ * NAME
+ *   new_line -- print new line
+ *
+ * SYNOPSIS
+ *   call new_line;
+ *
+ * DESCRIPTION
+ *   Print the new line character or sequence of characters to the console.
+ *
+ ******
+ */
 new_line: procedure public;
     call dos_std_string_out(@(CR, LF, EOL));
 end new_line;
 
+/****f* cons/print_line
+ *
+ * NAME
+ *   print_line -- print a null-terminated string with line end sequence
+ *
+ * SYNOPOSIS
+ *   call print_line(p$str);
+ *
+ * DESCRIPTION
+ *   Print the null-terminated string pointed by p$str and then print the
+ *   line ending character(s).
+ *
+ ******
+ */
 print_line: procedure (pstr) public;
     declare pstr pointer;
     call print_string(pstr);
@@ -40,12 +104,39 @@ print$nibble: procedure (nibble);
         call print_char('a' + nibble - 10);
 end print$nibble;
 
+/****f* cons/print_hex_byte
+ *
+ * NAME
+ *   print_hex_byte -- print the hexadecimal representation of a byte
+ *
+ * SYNOPSIS
+ *   call print_hex_byte(b);
+ *
+ * DESCRIPTION
+ *   Print the lowercase hexadecimal representation of the given byte.
+ *   Prepend with a leading zero if needed.
+ *
+ ******
+ */
 print_hex_byte: procedure (b) public;
     declare b byte;
     call print$nibble(b / 16);
     call print$nibble(b mod 16);
 end print_hex_byte;
 
+/****f* cons/print_uint
+ *
+ * NAME
+ *   print_uint -- print unsigned integer
+ *
+ * SYNOPSIS
+ *   call print_uint(num);
+ *
+ * DESCRIPTION
+ *   Print the decimal representation of the unsigned integer.
+ *
+ ******
+ */
 print_uint: procedure (num) public;
     declare num uint;
     declare i uint;
@@ -65,10 +156,26 @@ print_uint: procedure (num) public;
     end;
 end print_uint;
 
-read_line: procedure (len, pbuf) uint public;
+/****f* cons/read_line
+ *
+ * NAME
+ *   read_line -- read one line from the console
+ *
+ * SYNOPSIS
+ *   read_line(len, p$buf)
+ *
+ * DESCRIPTION
+ *   Read into the location at p$buf a string of maximum len bytes.
+ *   The value returned is the actual length of the stirng read,
+ *   excluding the null terminator which is added at the end of
+ *   the string.
+ *
+ ******
+ */
+read_line: procedure (len, p$buf) uint public;
     declare len byte;
-    declare pbuf pointer;
-    declare buf based pbuf (*) byte;
+    declare p$buf pointer;
+    declare buf based p$buf (*) byte;
     declare l byte;
     declare i byte;
     buf(0) = len;
