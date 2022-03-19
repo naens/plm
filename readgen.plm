@@ -1,3 +1,18 @@
+/****h* plm/readgen
+ *
+ * NAME
+ *   readgen -- read PL/M code and generate output code
+ *
+ * DESCRIPTION
+ *   The purpose of this module is to read PL/M files and to generate code,
+ *   which is typically assembly, but can also be binary or source code of
+ *   another programming language.  The code generated is the translation of
+ *   PL/M code into the output language.
+ *   The output language is controlled using compilation parameters (not
+ *   implemented yet).
+ *
+ ******
+ */
 readgen:
 do;
 
