@@ -1,3 +1,4 @@
+.ERASE
 .EXTENSIONS:
 .EXTENSIONS: .obj .plm .exe
 
