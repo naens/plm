@@ -50,39 +50,27 @@
    be great, wouldn't it?
 
 ** Development environment
-   The Operating System I'm using for the development is CP/M on z80pack.  I'm
-   using PLMX, Microsoft m80, and DRI LINK.  Also all the PL/M code that I
-   write, I write in ~ED.COM~ text editor.  I just find it more interesting, a
-   more genuine experience: I think it makes me think about the code in a more
-   organized way.
+   I am developing the project on DOSBox-X.  I tried developing under CP/M using
+   Intel PL/M-80 and another compiler called PLMX, but both had a very serious
+   limitation that the length of the identifiers was limited to 5 or 6
+   character.  Fortunately PL/M-86 allows identifiers of length 31.  The
+   assembler I will probably use to create binaries from assembly code, ZSM4
+   accepts identifiers of 12 character, which will be for now the limit.  At
+   least it's much better than 6.
 
-** How to compile
-   I have the PLMX binaries on the ~d:~ drive and the source code is on th ~j:~
-   drive.  But I don't think there are any mantions of ~j:~ anywhere in the
-   code, but it's important that the ~SUBMIT~ make files refer to the ~d:~
-   drive.
+   The editor I use is the CP/M-80 ~ED.COM~ editor.  I use it with the emulator
+   called Z80MU.  Unfortunately I don't have a version of ED that works under
+   DOS.
 
-   The PLMX compilers can compile executable and library modules.  It can also
-   just check that the program is syntactically correct and can be compiled.  So
-   I have several ~SUB~ files for different cases:
-   * ~chk.sub~ takes the name of a file and checks it,
-   * ~mk.sub~ makes a small standalone executable program,
-   * ~lib.sub~ compiles a library file,
-   * ~make.sub~ is the main file for the project: it compiles all the modules of
-     the project.
+* How to compile
+  The build program I use is ~wmake~, which is distributed with OpenWatcom.
+  There is a ~makefile~ in the project directory that has all the necessary
+  rules to build the program
 
-  To run a ~SUB~ file you just type like this:
-  * ~j:>submit make~ in order to run ~make.sub~, or
-  * ~j:>submit mk hello~ in order to compile a standalone ~hello.plm~ program.
-
-  I use the standart PLMX library, but I try to use it as little as possible
-  with the intention to completely substitute it with assembly files.
-
-  Actually it was the initial goal of the /ksi/ project, another of my
-  repositories, but I didn't have time to work on it, so it's beyond the state
-  of current development.  But I think I will use some parts of it for the
-  CCP/M-86 version.  Perhaps it will also run on 8086 Minix, who knows...
-
+  Executing ~wmake~ builds the whole project.  You can also specify the
+  individual targets, for example ~wmake cons.obj~ will only build the ~cons~
+  module.
+   
 * Contribute
   I understand that it's too early for people to want to contribute, but I'm
   open.  You can use github for it.  If I find that there are more people than
