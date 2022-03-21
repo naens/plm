@@ -17,13 +17,12 @@ body
 {
     background-color:    rgb(255,255,255);
     color:               rgb(98,84,55);
-    font-family:         courier_prime, serif;
+    font-family:         courier_prime, monospace;
     border-color:        rgb(226,199,143);
 }
 
 pre
 {
-    font-family:         courier_prime;
     margin-top:          5px;
     margin-right:        15px;
     margin-bottom:       25px;
