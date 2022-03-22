@@ -6,7 +6,7 @@ all: dos .symbolic
 
 dos: readgen.exe .symbolic
 
-object_files = sys.obj cons.obj string.obj tokread.obj readgen.obj
+object_files = sys.obj cons.obj string.obj tokread.obj readgen.obj parser.obj
 plm_lib = c:\intel\lib\doslibs.obj c:\intel\lib\plm86.lib
 
 .plm.obj:

@@ -1,0 +1,16 @@
+/****h* plm/parser
+ *
+ * NAME
+ *   parser
+ *
+ ******
+ */
+parser:
+do;
+
+$include (glob.inc)
+
+declare stack (80) byte;
+declare stack$idx uint;
+
+end;
