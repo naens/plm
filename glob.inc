@@ -5,6 +5,7 @@ $list
 
 /* types */
 declare uint literally 'address';
+declare uint16 literally 'word';
 declare boolean literally 'byte';
 declare true literally '1';
 declare false literally '0';

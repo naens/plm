@@ -13,4 +13,19 @@ $include (glob.inc)
 declare stack (80) byte;
 declare stack$idx uint;
 
+stack$push: procedure (x);
+    declare x uint16;
+    stack(stack$idx) = x mod 256;
+    stack(stack$idx + 1) = x / 256;
+    stack$idx = stack$idx + 2;
+end stack$push;
+
+stack$pop: procedure uint16;
+    declare result uint16;
+    stack$idx = stack$idx - 2;
+    result = stack(stack$idx + 1) * 256;
+    result = result + stack(stack$idx);
+    return result;
+end stack$pop;
+
 end;
