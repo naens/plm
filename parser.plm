@@ -9,6 +9,7 @@ parser:
 do;
 
 $include (glob.inc)
+$include (extdcl.inc)
 
 declare stack (80) byte;
 declare stack$idx uint;
@@ -28,4 +29,21 @@ stack$pop: procedure uint16;
     return result;
 end stack$pop;
 
-end;
+/****f* parser/parse
+ *
+ * NAME
+ *   parse -- parse the input, generate the output
+ *
+ * SYNOPSIS
+ *   call parse;
+ *
+ * DESCRIPTION
+ *   Parse PL/M code using the tokenizer (from the source known by the
+ *   tokenizer) and generate output code using the code generator.
+ *
+ ******
+ */
+parse: procedure;
+end parse;
+
+end parser;
