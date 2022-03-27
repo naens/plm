@@ -76,8 +76,7 @@
   open.  You can use github for it.  If I find that there are more people than
   just me, I might create some kind of chat or mail channel for the project.
 
-* License
-  I use GPLv3 for this project because I believe that code should be available
-  and when the author is not afraid to show the code it means that he knows what
-  he wanted to achieve writing this program, is not making anything insencere
-  and is proud of his code.
+* Support
+  If you want to help the project, you can do it on Patreon:
+  [[https://www.patreon.com/simpleprogrammingcodes][https://www.patreon.com/simpleprogrammingcodes]].
+
