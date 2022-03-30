@@ -14,6 +14,10 @@ $include (extdcl.inc)
 declare stack (80) byte;
 declare stack$idx uint;
 
+/* Parser constants */
+declare declaration literally '300';
+declare assignment literally '310';
+
 stack$push: procedure (x);
     declare x uint16;
     stack(stack$idx) = x mod 256;
@@ -28,6 +32,9 @@ stack$pop: procedure uint16;
     result = result + stack(stack$idx);
     return result;
 end stack$pop;
+
+parse$loop: procedure;
+end parse$loop;
 
 /****f* parser/parse
  *
