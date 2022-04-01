@@ -1,8 +1,7 @@
 #!/usr/bin/bash
 function robodoc_html()
 {
-    robodoc --src . --doc ./docs --html --multidoc \
-        --sections --tell --toc --index --css robodoc.css
+    robodoc --src . --doc ./docs --html --multidoc --sections --tell --toc --index --css robodoc.css
 
     for f in docs/*.html
     do
