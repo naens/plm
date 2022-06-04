@@ -270,6 +270,36 @@ read$word: procedure;
 end read$word;
 
 /* read a number from the input */
+read$compare: procedure;
+    if get$char = '=' then
+        token$id = tok$equals;
+    else if get$char = '>' then
+    do;
+        call next$char;
+        if get$char = '=' then
+            token$id = tok$geq;
+        else
+        do;
+            token$id = tok$greater;
+            call unread$char;
+        end;
+    end;
+    else if get$char = '<' then
+    do;
+        call next$char;
+        if get$char = '=' then
+            token$id = tok$leq;
+        else
+        do;
+            token$id = tok$lower;
+            call unread$char;
+        end;
+    end;
+    else
+        token$id = tok$unknown;
+end read$compare;
+        
+
 read$number: procedure;
     declare n uint;
     n = 0;
@@ -319,6 +349,8 @@ tok$next: procedure public;
         token$id = tok$eof;
     else if get$char = quote then
         call read$string;
+    else if get$char = '>' or get$char = '=' or get$char = '<' then
+        call read$compare;
     else if dec$char(get$char) then
         call read$number;
     else if word$first(get$char) then

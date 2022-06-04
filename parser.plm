@@ -1,3 +1,4 @@
+$list
 /****h* plm/parser
  *
  * NAME
@@ -64,3 +65,4 @@ parse: procedure;
 end parse;
 
 end parser;
+

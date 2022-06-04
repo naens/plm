@@ -6,6 +6,8 @@
     declare tok$unknown literally '0ffh';
 
     /* special characters correspond to their ascii codes: 40..47, 58..64 */
+    declare tok$leq literally '10';
+    declare tok$geq literally '11';
     declare tok$plus literally '''+''';
     declare tok$minus literally '''-''';
     declare tok$star literally '''*''';
