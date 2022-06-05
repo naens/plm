@@ -52,16 +52,6 @@ end parse$loop;
  ******
  */
 parse: procedure;
-    call push(tok$identifier);
-    call push(tok$colon);
-    call push(tok$do);
-    call push(tok$semicolon);
-    call push(nt$body);
-    call push(tok$end);
-    call push(tok$semicolon);
-    call push(tok$eof);
-
-    call parse$loop;
 end parse;
 
 end parser;
