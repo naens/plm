@@ -54,5 +54,13 @@ end parse$loop;
 parse: procedure;
 end parse;
 
+parse$rule: procedure (start$rule, p$str) byte;
+    declare start$rule uint;
+    declare p$str pointer;
+    declare str byte based p$str;
+    /* TODO */
+    call stack$push(rule$start);
+end parse$rule;
+
 end parser;
 
