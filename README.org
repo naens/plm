@@ -71,11 +71,6 @@
   individual targets, for example ~wmake cons.obj~ will only build the ~cons~
   module.
    
-* Contribute
-  I understand that it's too early for people to want to contribute, but I'm
-  open.  You can use github for it.  If I find that there are more people than
-  just me, I might create some kind of chat or mail channel for the project.
-
 * Support
   If you want to help the project, you can do it on Patreon:
   [[https://www.patreon.com/simpleprogrammingcodes][https://www.patreon.com/simpleprogrammingcodes]].
