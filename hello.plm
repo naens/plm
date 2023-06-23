@@ -1,8 +1,0 @@
-hello:
-do;
-
-$include (d:iocld.src)
-
-call wr$con('$');
-
-end;

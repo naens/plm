@@ -44,9 +44,9 @@ tokread:
 do;
 
 $set (tokenizer)
-$include (glob.inc)
+
+$include (c:\plmprog\plmlib\plmlib.inc)
 $include (toklit.inc)
-$include (extdcl.inc)
 
 /* READER */
 /* reader variables */
@@ -448,3 +448,4 @@ print$token: procedure public;
 end print$token;
 
 end;
+
