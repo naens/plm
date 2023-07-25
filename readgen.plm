@@ -16,9 +16,21 @@
 readgen:
 do;
 
-$include (glob.inc)
+$include (..\plmlib\plmlib.inc)
 $include (toklit.inc)
-$include (extdcl.inc)
+
+reader$set$ptr: procedure (ptr) external;
+    declare ptr pointer;
+end reader$set$ptr;
+
+tok$next: procedure external;
+end tok$next;
+
+get$token: procedure byte external;
+end get$token;
+
+print$token: procedure external;
+end print$token;
 
 
 declare tail$len literally '128';
@@ -38,3 +50,4 @@ end;
 call terminate(0);
 
 end;
+

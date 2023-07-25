@@ -9,8 +9,8 @@ $list
 parser:
 do;
 
-$include (glob.inc)
-$include (extdcl.inc)
+$include (..\plmlib\plmlib.inc)
+$include (toklit.inc)
 
 declare stack (80) byte;
 declare stack$idx uint;
@@ -57,10 +57,12 @@ end parse;
 parse$rule: procedure (start$rule, p$str) byte;
     declare start$rule uint;
     declare p$str pointer;
-    declare str byte based p$str;
+    declare str based p$str (*) byte;
     /* TODO */
     call stack$push(rule$start);
+    return 0FFh; /* TODO: fix: temporary */
 end parse$rule;
 
 end parser;
 
+
