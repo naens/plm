@@ -11,6 +11,7 @@
 *.86
 *.MP1
 *.exe
+*.dst
 
 # backups
 *.bak
