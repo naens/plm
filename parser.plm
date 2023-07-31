@@ -34,8 +34,10 @@ stack$pop: procedure uint16;
     return result;
 end stack$pop;
 
+/*
 parse$loop: procedure;
 end parse$loop;
+*/
 
 /****f* parser/parse
  *
@@ -51,18 +53,20 @@ end parse$loop;
  *
  ******
  */
+/*
 parse: procedure;
 end parse;
+*/
 
 parse$rule: procedure (start$rule, p$str) byte;
     declare start$rule uint;
     declare p$str pointer;
     declare str based p$str (*) byte;
     /* TODO */
-    call stack$push(rule$start);
+/*    call stack$push(rule$start); */
     return 0FFh; /* TODO: fix: temporary */
 end parse$rule;
 
 end parser;
 
-
+
