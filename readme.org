@@ -50,15 +50,17 @@
    be great, wouldn't it?
 
 ** Development environment
-   I am developping this project under FreeDOS.  I use the ~wmake~
-   command from OpenWatcom.
+   I am developing the project on DOSBox-X.  I tried developing under CP/M using
+   Intel PL/M-80 and another compiler called PLMX, but both had a very serious
+   limitation that the length of the identifiers was limited to 5 or 6
+   character.  Fortunately PL/M-86 allows identifiers of length 31.  The
+   assembler I will probably use to create binaries from assembly code, ZSM4
+   accepts identifiers of 12 character, which will be for now the limit.  At
+   least it's much better than 6.
 
-   Now I use the Intel iAPX DOSLIBS library in order to call DOS
-   functions from PL/M.  I don't use it directly, I use it from my
-   PLMLIB library I made to make the PL/M code less dependent on DOS.
-
-   I needed to uncomment the two commented lines in the ~dos_get_psp~
-   subroutine to make it work properly.
+   The editor I use is the CP/M-80 ~ED.COM~ editor.  I use it with the emulator
+   called Z80MU.  Unfortunately I don't have a version of ED that works under
+   DOS.
 
 * How to compile
   The build program I use is ~wmake~, which is distributed with OpenWatcom.
