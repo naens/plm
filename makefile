@@ -23,5 +23,7 @@ clean: .symbolic
 	rm readgen.exe
 	rm *.obj
 	rm *.lst
+	rm *.bak
+	rm *.bkp
 	rm *.exe
 
