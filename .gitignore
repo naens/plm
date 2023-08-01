@@ -12,6 +12,7 @@
 *.MP1
 *.exe
 *.dst
+*.mp1
 
 # backups
 *.bak
