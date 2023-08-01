@@ -211,19 +211,19 @@ end skip$comment;
    otherwise return tok$ident
 */
 str$tok$id: procedure uint16;
-    if string_equal(token$string, @('DECLARE', 0)) then
+    if string_equal(token$string, @('declare', 0)) then
         return kw$declare;
-    else if string_equal(token$string, @('BYTE', 0)) then
+    else if string_equal(token$string, @('byte', 0)) then
         return kw$byte;
-    else if string_equal(token$string, @('DO', 0)) then
+    else if string_equal(token$string, @('do', 0)) then
         return kw$do;
-    else if string_equal(token$string, @('END', 0)) then
+    else if string_equal(token$string, @('end', 0)) then
         return kw$end;
-    else if string_equal(token$string, @('IF', 0)) then
+    else if string_equal(token$string, @('if', 0)) then
         return kw$if;
-    else if string_equal(token$string, @('THEN', 0)) then
+    else if string_equal(token$string, @('then', 0)) then
         return kw$then;
-    else if string_equal(token$string, @('ELSE', 0)) then
+    else if string_equal(token$string, @('else', 0)) then
         return kw$else;
     else /***/
         return tok$ident;
@@ -267,7 +267,7 @@ read$word: procedure;
     do while not input$end and word$char(get$char) and i < tbuf$len - 1;
         if get$char <> '$' then
         do;
-            buffer$chr(i) = char_upper(get$char);
+            buffer$chr(i) = char_lower(get$char);
             i = i + 1;
         end;
         call next$char;
@@ -398,19 +398,19 @@ end pr$chr$tok;
 pr$kw$tok: procedure (tok$id);
     declare tok$id byte;
     if tok$id = kw$declare then
-        call print_string(@('DECLARE', 0));
+        call print_string(@('declare', 0));
     else if tok$id = kw$byte then
-        call print_string(@('BYTE', 0));
+        call print_string(@('byte', 0));
     else if tok$id = kw$do then
-        call print_string(@('DO', 0));
+        call print_string(@('do', 0));
     else if tok$id = kw$end then
-        call print_string(@('END', 0));
+        call print_string(@('end', 0));
     else if tok$id = kw$if then
-        call print_string(@('IF', 0));
+        call print_string(@('if', 0));
     else if tok$id = kw$then then
-        call print_string(@('THEN', 0));
+        call print_string(@('then', 0));
     else if tok$id = kw$else then
-        call print_string(@('ELSE', 0));
+        call print_string(@('else', 0));
 end pr$kw$tok;
 
 /****f* tokread/print$token
@@ -430,34 +430,37 @@ end pr$kw$tok;
 print$token: procedure public;
     if token$id = tok$ident then
     do;
-        call print_string(@('IDENTIFIER:', 0));
+        call print_string(@('id:', 0));
         call print_string(token$string);
         return;
     end;
     if token$id = tok$number then
     do;
-        call print_string(@('NUMBER:', 0));
+        call print_string(@('num:', 0));
         call print_uint(token$value);
         return;
     end;
     if token$id = tok$string then
     do;
-        call print_string(@('STRING: [', 0));
+        call print_string(@('string: [', 0));
         call print_string(token$string);
         call print_char(']');
     end;
     else if token$id = tok$eof then
-        call print_string(@('END OF INPUT', 0));
+        call print_string(@('end of input', 0));
     else if is$character(token$id) then
         call pr$chr$tok(token$id);
     else if is$keyword(token$id) then
+    do;
+        call print_string(@('kw:', 0));
         call pr$kw$tok(token$id);
+    end;
     else /***/
     do;
-        call print_string(@('UNKNOWN TOKEN:', 0));
+        call print_string(@('unknown:', 0));
         call print_uint(token$id);
     end;
 end print$token;
 
 end;
-
+
