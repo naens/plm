@@ -17,7 +17,7 @@ readgen:
 do;
 
 $include (..\plmlib\plmlib.inc)
-$include (toklit.inc)
+$include (tokpars.inc)
 
 reader$set$ptr: procedure (ptr) external;
     declare ptr pointer;
@@ -37,9 +37,10 @@ declare tail$len literally '128';
 declare tail (tail$len) byte;
 
 call get_command_tail(@tail, tail$len);
-call print_string(@('string entered: {', 0));
+call print_string(@('String entered {', 0));
 call print_string(@tail);
 call print_line(@('}', 0));
+call print_line(@('==============', 0));
 call reader$set$ptr(@tail);
 do while get$token <> tok$eof;
     call print$token;
@@ -50,4 +51,4 @@ end;
 call terminate(0);
 
 end;
-
+

@@ -46,7 +46,7 @@ do;
 $set (tokenizer)
 
 $include (c:\plmprog\plmlib\plmlib.inc)
-$include (toklit.inc)
+$include (tokpars.inc)
 
 /* READER */
 /* reader variables */
@@ -463,4 +463,4 @@ print$token: procedure public;
 end print$token;
 
 end;
-
+
